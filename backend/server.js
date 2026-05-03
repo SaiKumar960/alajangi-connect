@@ -20,7 +20,7 @@ const httpServer = http.createServer(app);
 // ─── Socket.IO (Phase 2 — Messaging placeholder) ─────────────────────────────
 const io = new Server(httpServer, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5173',
+    origin: [process.env.CLIENT_URL || 'http://localhost:5173', 'https://alajangi-connect.vercel.app'],
     methods: ['GET', 'POST'],
   },
 });
@@ -48,7 +48,7 @@ app.set('io', io);
 
 // ─── Middleware ───────────────────────────────────────────────────────────────
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: [process.env.CLIENT_URL || 'http://localhost:5173', 'https://alajangi-connect.vercel.app'],
   credentials: true,
 }));
 app.use(express.json({ limit: '10mb' }));
