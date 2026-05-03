@@ -7,7 +7,7 @@ const BASE_URL = import.meta.env.VITE_API_URL || '/api';
 const api = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
-  timeout: 15000,
+  timeout: 60000,
 });
 
 // ─── Helper to set/clear auth token ──────────────────────────────────────────
@@ -44,7 +44,7 @@ api.interceptors.response.use(
 
 // ─── Auth API ────────────────────────────────────────────────────────────────
 export const authAPI = {
-  register: (formData) => api.post('/auth/register', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  register: (formData) => api.post('/auth/register', formData),
   login: (data) => api.post('/auth/login', data),
   getMe: () => api.get('/auth/me'),
 };
@@ -53,8 +53,7 @@ export const authAPI = {
 export const postsAPI = {
   getFeed: (page = 1, limit = 10) => api.get(`/posts?page=${page}&limit=${limit}`),
   getPost: (id) => api.get(`/posts/${id}`),
-  createPost: (formData) =>
-    api.post('/posts', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  createPost: (formData) => api.post('/posts', formData),
   deletePost: (id) => api.delete(`/posts/${id}`),
   toggleLike: (id) => api.post(`/posts/${id}/like`),
   addComment: (id, text) => api.post(`/posts/${id}/comment`, { text }),
@@ -68,8 +67,7 @@ export const usersAPI = {
   getSuggestedUsers: () => api.get('/users/suggestions'),
   getProfile: (id) => api.get(`/users/${id}`),
   getUserPosts: (id, page = 1) => api.get(`/users/${id}/posts?page=${page}`),
-  updateProfile: (formData) =>
-    api.put('/users/me', formData, { headers: { 'Content-Type': 'multipart/form-data' } }),
+  updateProfile: (formData) => api.put('/users/me', formData),
   toggleFollow: (id) => api.post(`/users/${id}/follow`),
 };
 

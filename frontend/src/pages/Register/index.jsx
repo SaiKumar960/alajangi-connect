@@ -62,7 +62,7 @@ const Register = () => {
       toast.success(`Account created! Welcome, ${data.user.name}! 🎉`);
       navigate('/');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration failed. Please try again.');
+      toast.error(err.response?.data?.message || err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

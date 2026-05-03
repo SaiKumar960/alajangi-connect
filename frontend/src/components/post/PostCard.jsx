@@ -8,6 +8,7 @@ import { postsAPI } from '../../services/api';
 import { timeAgo } from '../../utils/formatDate';
 import CommentList from './CommentList';
 import Avatar from '../common/Avatar';
+import { getMediaUrl } from '../../utils/getMediaUrl';
 import { motion } from 'framer-motion';
 import styles from './PostCard.module.css';
 import toast from 'react-hot-toast';
@@ -89,7 +90,7 @@ const PostCard = ({ post, onLike, onDelete }) => {
         {post.imageUrl && (
           <div className={styles.imageWrapper}>
             <img
-              src={post.imageUrl}
+              src={getMediaUrl(post.imageUrl)}
               alt="Post media"
               className={styles.postImage}
               loading="lazy"

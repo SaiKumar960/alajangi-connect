@@ -1,4 +1,5 @@
 import React from 'react';
+import { getMediaUrl } from '../../utils/getMediaUrl';
 
 const Avatar = ({ src, name, size = 'md', className = '' }) => {
   // Size classes mapped to index.css utility classes if they existed, or inline styles
@@ -29,7 +30,7 @@ const Avatar = ({ src, name, size = 'md', className = '' }) => {
     return (
       <div style={containerStyle} className={`avatar-container ${className}`}>
         <img
-          src={src}
+          src={getMediaUrl(src)}
           alt={`${name}'s avatar`}
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />

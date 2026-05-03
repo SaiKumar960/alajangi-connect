@@ -41,7 +41,7 @@ const Login = () => {
       toast.success(`Welcome back, ${data.user.name}! 👋`);
       navigate('/');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed. Please try again.');
+      toast.error(err.response?.data?.message || err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
