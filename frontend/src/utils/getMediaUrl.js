@@ -9,3 +9,5 @@ export const getMediaUrl = (url) => {
     
   return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
 };
+
+export default getMediaUrl;
