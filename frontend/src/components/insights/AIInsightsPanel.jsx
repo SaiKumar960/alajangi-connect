@@ -1,6 +1,6 @@
 import React from 'react';
 import SuggestedUsers from '../user/SuggestedUsers';
-import { RiBrainLine, RiTrendUpLine, RiUserHeartLine, RiPulseLine } from 'react-icons/ri';
+import { RiLightbulbLine, RiFireLine, RiUserFollowLine, RiRadarLine } from 'react-icons/ri';
 import { useAuth } from '../../hooks/useAuth';
 
 const AIInsightsPanel = () => {
@@ -20,11 +20,11 @@ const AIInsightsPanel = () => {
       {/* Panel 1: People Like You */}
       <div className="glass-panel rounded-2xl p-5 border border-white/5 relative overflow-hidden group">
         <div className="absolute top-0 right-0 p-4 opacity-10 text-cyan-400 group-hover:opacity-20 transition-opacity">
-          <RiUserHeartLine size={80} />
+          <RiUserFollowLine size={80} />
         </div>
         
         <div className="flex items-center gap-2 mb-4 relative z-10">
-          <RiBrainLine className="text-cyan-400" size={20} />
+          <RiLightbulbLine className="text-cyan-400" size={20} />
           <h3 className="font-semibold text-white">Network Sync</h3>
         </div>
         
@@ -39,12 +39,12 @@ const AIInsightsPanel = () => {
 
       {/* Panel 2: Trending Topics */}
       <div className="glass-panel rounded-2xl p-5 border border-white/5 relative overflow-hidden group">
-        <div className="absolute -right-4 -bottom-4 opacity-5 text-electric group-hover:opacity-10 transition-opacity">
-          <RiTrendUpLine size={120} />
+        <div className="absolute -right-4 -bottom-4 opacity-5 text-electric group-hover:opacity-100 transition-opacity">
+          <RiFireLine size={120} />
         </div>
 
         <div className="flex items-center gap-2 mb-4 relative z-10">
-          <RiPulseLine className="text-electric" size={20} />
+          <RiRadarLine className="text-electric" size={20} />
           <h3 className="font-semibold text-white">Trending Frequencies</h3>
         </div>
 

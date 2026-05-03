@@ -62,13 +62,15 @@ export const postsAPI = {
 };
 
 // ─── Users API ───────────────────────────────────────────────────────────────
-export const usersAPI = {
+export const userAPI = {
   searchUsers: (query) => api.get(`/users/search?q=${encodeURIComponent(query)}`),
   getSuggestedUsers: () => api.get('/users/suggestions'),
   getProfile: (id) => api.get(`/users/${id}`),
+  getUser: (id) => api.get(`/users/${id}`), // Alias for Profile
   getUserPosts: (id, page = 1) => api.get(`/users/${id}/posts?page=${page}`),
   updateProfile: (formData) => api.put('/users/me', formData),
   toggleFollow: (id) => api.post(`/users/${id}/follow`),
+  followUser: (id) => api.post(`/users/${id}/follow`), // Alias for toggleFollow
 };
 
 export default api;

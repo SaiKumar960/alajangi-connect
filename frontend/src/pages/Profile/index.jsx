@@ -10,7 +10,7 @@ import GlowButton from '../../components/common/GlowButton';
 import PostCardStandard from '../../components/post/PostCardStandard';
 import PostCardCompact from '../../components/post/PostCardCompact';
 import FloatingComposer from '../../components/composer/FloatingComposer';
-import { RiEditLine, RiUserAddLine, RiUserFollowLine, RiMapPinLine, RiCalendarLine, RiPulseLine } from 'react-icons/ri';
+import { RiEditLine, RiUserAddLine, RiUserFollowLine, RiMapPinLine, RiCalendarLine, RiActivityLine } from 'react-icons/ri';
 import toast from 'react-hot-toast';
 
 const Profile = () => {
@@ -171,7 +171,7 @@ const Profile = () => {
         {/* Content Tabs */}
         <div className="flex items-center gap-6 mb-6 px-2 border-b border-white/5">
           <button className="pb-3 border-b-2 border-electric text-white font-medium text-sm flex items-center gap-2">
-            <RiPulseLine />
+            <RiActivityLine />
             Recent Activity
           </button>
         </div>
