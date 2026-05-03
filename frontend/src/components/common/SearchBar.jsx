@@ -1,87 +1,54 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { RiSearchLine } from 'react-icons/ri';
-import { usersAPI } from '../../services/api';
-import Avatar from './Avatar';
-import styles from './SearchBar.module.css';
+import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { RiSearchLine, RiCloseLine, RiHistoryLine } from 'react-icons/ri';
 
-const SearchBar = () => {
+const SearchBar = ({ onSearch, placeholder = 'Search...', className = '' }) => {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState([]);
-  const [isOpen, setIsOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const searchRef = useRef(null);
-
+  const [isFocused, setIsFocused] = useState(false);
+  const inputRef = useRef(null);
+  
+  // Basic debounce if an onSearch prop is provided
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (searchRef.current && !searchRef.current.contains(e.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    const handler = setTimeout(() => {
+      if (onSearch) onSearch(query);
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [query, onSearch]);
 
-  useEffect(() => {
-    const fetchResults = async () => {
-      if (!query.trim()) {
-        setResults([]);
-        setIsOpen(false);
-        return;
-      }
-      setLoading(true);
-      try {
-        const { data } = await usersAPI.searchUsers(query);
-        setResults(data.users || []);
-        setIsOpen(true);
-      } catch (err) {
-        console.error('Search failed', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const debounce = setTimeout(fetchResults, 300);
-    return () => clearTimeout(debounce);
-  }, [query]);
+  const clearSearch = () => {
+    setQuery('');
+    if (onSearch) onSearch('');
+    inputRef.current?.focus();
+  };
 
   return (
-    <div className={styles.searchContainer} ref={searchRef}>
-      <div className={styles.inputWrapper}>
-        <RiSearchLine className={styles.searchIcon} />
-        <input
-          type="text"
-          className={styles.searchInput}
-          placeholder="Search users..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onFocus={() => { if (query.trim()) setIsOpen(true); }}
-        />
-      </div>
-
-      {isOpen && (
-        <div className={styles.dropdown}>
-          {loading ? (
-            <div className={styles.empty}>Searching...</div>
-          ) : results.length > 0 ? (
-            results.map((user) => (
-              <Link
-                key={user._id}
-                to={`/profile/${user._id}`}
-                className={styles.resultItem}
-                onClick={() => setIsOpen(false)}
-              >
-                <Avatar src={user.avatar} name={user.name} size="sm" />
-                <div className={styles.resultInfo}>
-                  <span className={styles.resultName}>{user.name}</span>
-                </div>
-              </Link>
-            ))
-          ) : (
-            <div className={styles.empty}>No users found</div>
+    <div className={`relative ${className}`}>
+      <div className="relative group">
+        <div className="absolute -inset-0.5 bg-electric/20 rounded-full blur opacity-0 group-focus-within:opacity-100 transition duration-300"></div>
+        <div className="relative flex items-center bg-surface border border-white/10 rounded-full overflow-hidden focus-within:border-electric/50 transition-colors h-10">
+          <span className="pl-3 text-gray-400 group-focus-within:text-electric transition-colors">
+            <RiSearchLine size={18} />
+          </span>
+          <input
+            ref={inputRef}
+            type="text"
+            className="w-full bg-transparent text-white px-3 py-2 text-sm focus:outline-none placeholder-gray-500"
+            placeholder={placeholder}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setTimeout(() => setIsFocused(false), 200)}
+          />
+          {query && (
+            <button
+              onClick={clearSearch}
+              className="pr-3 text-gray-500 hover:text-white transition-colors"
+            >
+              <RiCloseLine size={18} />
+            </button>
           )}
         </div>
-      )}
+      </div>
     </div>
   );
 };

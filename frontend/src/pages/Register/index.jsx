@@ -1,171 +1,160 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { RiMailLine, RiLockLine, RiUser3Line, RiEyeLine, RiEyeOffLine, RiImageLine } from 'react-icons/ri';
-import Avatar from '../../components/common/Avatar';
 import { useAuth } from '../../hooks/useAuth';
 import { authAPI } from '../../services/api';
 import Input from '../../components/common/Input';
-import Button from '../../components/common/Button';
-import styles from './Register.module.css';
+import GlowButton from '../../components/common/GlowButton';
+import Avatar from '../../components/common/Avatar';
+import { RiUser3Line, RiMailLine, RiLockPasswordLine, RiImageAddLine } from 'react-icons/ri';
 import toast from 'react-hot-toast';
 
 const Register = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
+  const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
+  
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
-  const [avatarFile, setAvatarFile] = useState(null);
-  const [avatarPreview, setAvatarPreview] = useState(null);
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
 
-  const validate = () => {
-    const e = {};
-    if (!form.name.trim()) e.name = 'Name is required';
-    else if (form.name.trim().length > 50) e.name = 'Name cannot exceed 50 characters';
-    if (!form.email) e.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Enter a valid email';
-    if (!form.password) e.password = 'Password is required';
-    else if (form.password.length < 6) e.password = 'Password must be at least 6 characters';
-    if (form.password !== form.confirmPassword) e.confirmPassword = 'Passwords do not match';
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    if (errors[e.target.name]) setErrors((prev) => ({ ...prev, [e.target.name]: '' }));
-  };
-
-  const handleAvatarChange = (e) => {
+  const handleImageChange = (e) => {
     const file = e.target.files[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) { toast.error('Image must be under 5 MB'); return; }
-    setAvatarFile(file);
-    setAvatarPreview(URL.createObjectURL(file));
+    if (file) {
+      setImage(file);
+      setPreview(URL.createObjectURL(file));
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (formData.password !== formData.confirmPassword) {
+      return toast.error('Access codes do not match');
+    }
 
     setLoading(true);
     try {
-      const fd = new FormData();
-      fd.append('name', form.name.trim());
-      fd.append('email', form.email);
-      fd.append('password', form.password);
-      if (avatarFile) fd.append('avatar', avatarFile);
+      const data = new FormData();
+      data.append('name', formData.name);
+      data.append('email', formData.email);
+      data.append('password', formData.password);
+      if (image) data.append('avatar', image);
 
-      const { data } = await authAPI.register(fd);
-      login(data.user, data.token);
-      toast.success(`Account created! Welcome, ${data.user.name}! 🎉`);
+      const response = await authAPI.register(data);
+      login(response.data.user, response.data.token);
+      toast.success(`Protocol initiated: Welcome ${response.data.user.name}`);
       navigate('/');
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message || 'Registration failed. Please try again.');
+      toast.error(err.response?.data?.message || err.message || 'Node creation failed');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.glow} aria-hidden="true" />
+    <div className="min-h-screen bg-void flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="fixed inset-0 neural-bg opacity-20"></div>
+      <div className="absolute -top-1/4 -right-1/4 w-96 h-96 bg-cyan-500/20 rounded-full blur-[120px] animate-pulse"></div>
+      <div className="absolute -bottom-1/4 -left-1/4 w-96 h-96 bg-electric/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1.5s' }}></div>
 
-      <div className={styles.card}>
-        <div className={styles.logoArea}>
-          <div className={styles.logoMark}>AC</div>
-          <h1 className={styles.title}>Create Account</h1>
-          <p className={styles.subtitle}>Join Alajangi Connect today</p>
-        </div>
+      {/* Register Card */}
+      <div className="w-full max-w-lg relative z-10">
+        <div className="glass-panel glow-border-intense rounded-[32px] p-8 sm:p-10">
+          
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold text-white tracking-tight glow-text mb-2">Request Protocol</h1>
+            <p className="text-gray-400">Generate a new node in the Alajangi network</p>
+          </div>
 
-        <form onSubmit={handleSubmit} className={styles.form} noValidate>
-          <div className={styles.avatarUploadContainer} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: 'var(--space-md)' }}>
-            <label htmlFor="reg-avatar" style={{ cursor: 'pointer', position: 'relative' }}>
-              <Avatar src={avatarPreview} name={form.name || '?'} size="lg" />
-              <div style={{ position: 'absolute', bottom: 0, right: 0, background: 'var(--clr-primary)', borderRadius: '50%', padding: '4px', display: 'flex' }}>
-                <RiImageLine size={12} color="white" />
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Avatar Upload */}
+            <div className="flex flex-col items-center mb-6">
+              <div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-tr from-electric to-cyan-500 rounded-full blur-md opacity-30 group-hover:opacity-60 transition-opacity"></div>
+                <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-white/20 group-hover:border-electric transition-colors">
+                  {preview ? (
+                    <img src={preview} alt="Preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-white/5 flex items-center justify-center text-gray-500">
+                      <RiUser3Line size={40} />
+                    </div>
+                  )}
+                  <label className="absolute inset-0 flex items-center justify-center bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                    <RiImageAddLine size={24} className="text-white" />
+                    <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} />
+                  </label>
+                </div>
               </div>
-            </label>
-            <input
-              id="reg-avatar"
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={handleAvatarChange}
-            />
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>Profile Picture (Optional)</span>
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-3 font-mono">Select Avatar Matrix</p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <Input
+                label="Full Name"
+                placeholder="User-ID"
+                icon={RiUser3Line}
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                required
+              />
+              <Input
+                label="Neural ID (Email)"
+                type="email"
+                placeholder="node@network.com"
+                icon={RiMailLine}
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <Input
+                label="Access Code"
+                type="password"
+                placeholder="••••••••"
+                icon={RiLockPasswordLine}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                required
+              />
+              <Input
+                label="Confirm Code"
+                type="password"
+                placeholder="••••••••"
+                icon={RiLockPasswordLine}
+                value={formData.confirmPassword}
+                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                required
+              />
+            </div>
+
+            <div className="pt-4">
+              <GlowButton 
+                type="submit" 
+                fullWidth 
+                size="lg" 
+                loading={loading}
+              >
+                Initiate Creation
+              </GlowButton>
+            </div>
+          </form>
+
+          <div className="mt-8 text-center">
+            <p className="text-gray-500 text-sm">
+              Already have a node ID?{' '}
+              <Link to="/login" className="text-cyan-400 hover:text-electric font-semibold transition-colors">
+                Sign In
+              </Link>
+            </p>
           </div>
-          <Input
-            id="reg-name"
-            label="Full name"
-            name="name"
-            type="text"
-            placeholder="John Doe"
-            value={form.name}
-            onChange={handleChange}
-            icon={RiUser3Line}
-            error={errors.name}
-            autoComplete="name"
-          />
-          <Input
-            id="reg-email"
-            label="Email address"
-            name="email"
-            type="email"
-            placeholder="you@example.com"
-            value={form.email}
-            onChange={handleChange}
-            icon={RiMailLine}
-            error={errors.email}
-            autoComplete="email"
-          />
-
-          <div className={styles.passwordField}>
-            <Input
-              id="reg-password"
-              label="Password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Min. 6 characters"
-              value={form.password}
-              onChange={handleChange}
-              icon={RiLockLine}
-              error={errors.password}
-              autoComplete="new-password"
-            />
-            <button
-              type="button"
-              className={styles.eyeBtn}
-              onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? <RiEyeOffLine size={16} /> : <RiEyeLine size={16} />}
-            </button>
-          </div>
-
-          <Input
-            id="reg-confirm"
-            label="Confirm password"
-            name="confirmPassword"
-            type="password"
-            placeholder="Repeat your password"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            icon={RiLockLine}
-            error={errors.confirmPassword}
-            autoComplete="new-password"
-          />
-
-          <Button type="submit" fullWidth loading={loading} size="lg">
-            Create Account
-          </Button>
-        </form>
-
-        <p className={styles.switchText}>
-          Already have an account?{' '}
-          <Link to="/login" className={styles.switchLink}>Sign in</Link>
-        </p>
+        </div>
       </div>
     </div>
   );

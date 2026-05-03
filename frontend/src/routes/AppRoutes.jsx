@@ -6,7 +6,6 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Profile from '../pages/Profile';
 import Loader from '../components/common/Loader';
-import BottomNav from '../components/layout/BottomNav';
 
 // Redirects unauthenticated users to /login
 const ProtectedRoute = ({ children }) => {
@@ -76,7 +75,6 @@ const AppRoutes = () => {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AnimatePresence>
-    <BottomNav />
     </>
   );
 };

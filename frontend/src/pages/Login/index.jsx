@@ -1,110 +1,107 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { RiMailLine, RiLockLine, RiEyeLine, RiEyeOffLine } from 'react-icons/ri';
 import { useAuth } from '../../hooks/useAuth';
 import { authAPI } from '../../services/api';
 import Input from '../../components/common/Input';
-import Button from '../../components/common/Button';
-import styles from './Login.module.css';
+import GlowButton from '../../components/common/GlowButton';
+import { RiMailLine, RiLockPasswordLine, RiUser3Line } from 'react-icons/ri';
 import toast from 'react-hot-toast';
 
 const Login = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ email: '', password: '' });
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
-
-  const validate = () => {
-    const e = {};
-    if (!form.email) e.email = 'Email is required';
-    else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Enter a valid email';
-    if (!form.password) e.password = 'Password is required';
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    if (errors[e.target.name]) setErrors((prev) => ({ ...prev, [e.target.name]: '' }));
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!email || !password) return toast.error('Identification required');
 
     setLoading(true);
     try {
-      const { data } = await authAPI.login(form);
+      const { data } = await authAPI.login({ email, password });
       login(data.user, data.token);
-      toast.success(`Welcome back, ${data.user.name}! 👋`);
+      toast.success(`Welcome back, ${data.user.name}`);
       navigate('/');
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message || 'Login failed. Please try again.');
+      toast.error(err.response?.data?.message || err.message || 'System rejection: Access denied');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.glow} aria-hidden="true" />
+    <div className="min-h-screen bg-void flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="fixed inset-0 neural-bg opacity-20"></div>
+      <div className="absolute top-1/4 -left-1/4 w-96 h-96 bg-electric/20 rounded-full blur-[120px] animate-pulse"></div>
+      <div className="absolute bottom-1/4 -right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '1s' }}></div>
 
-      <div className={styles.card}>
-        {/* Logo */}
-        <div className={styles.logoArea}>
-          <div className={styles.logoMark}>AC</div>
-          <h1 className={styles.title}>Alajangi Connect</h1>
-          <p className={styles.subtitle}>Welcome back! Sign in to continue.</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className={styles.form} noValidate>
-          <Input
-            id="login-email"
-            label="Email address"
-            name="email"
-            type="email"
-            placeholder="you@example.com"
-            value={form.email}
-            onChange={handleChange}
-            icon={RiMailLine}
-            error={errors.email}
-            autoComplete="email"
-          />
-
-          <div className={styles.passwordField}>
-            <Input
-              id="login-password"
-              label="Password"
-              name="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Your password"
-              value={form.password}
-              onChange={handleChange}
-              icon={RiLockLine}
-              error={errors.password}
-              autoComplete="current-password"
-            />
-            <button
-              type="button"
-              className={styles.eyeBtn}
-              onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-            >
-              {showPassword ? <RiEyeOffLine size={16} /> : <RiEyeLine size={16} />}
-            </button>
+      {/* Login Card */}
+      <div className="w-full max-w-md relative z-10">
+        <div className="glass-panel glow-border-intense rounded-[32px] p-8 sm:p-10">
+          
+          <div className="text-center mb-10">
+            <div className="inline-block p-4 bg-white/5 rounded-2xl mb-6 relative group">
+              <div className="absolute inset-0 bg-electric/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <img src="/logo.png" alt="Alajangi Logo" className="w-16 h-16 relative z-10 drop-shadow-[0_0_15px_rgba(139,92,246,0.5)]" />
+            </div>
+            <h1 className="text-3xl font-bold text-white tracking-tight glow-text mb-2">Initialize Session</h1>
+            <p className="text-gray-400">Connect your consciousness to the network</p>
           </div>
 
-          <Button type="submit" fullWidth loading={loading} size="lg">
-            Sign In
-          </Button>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <Input
+              label="Neural ID (Email)"
+              type="email"
+              placeholder="id@network.com"
+              icon={RiMailLine}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
 
-        <p className={styles.switchText}>
-          Don&apos;t have an account?{' '}
-          <Link to="/register" className={styles.switchLink}>Create one</Link>
-        </p>
+            <Input
+              label="Access Code"
+              type="password"
+              placeholder="••••••••"
+              icon={RiLockPasswordLine}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+
+            <div className="pt-2">
+              <GlowButton 
+                type="submit" 
+                fullWidth 
+                size="lg" 
+                loading={loading}
+              >
+                Sync with Network
+              </GlowButton>
+            </div>
+          </form>
+
+          <div className="mt-10 text-center">
+            <p className="text-gray-500 text-sm">
+              New node in the system?{' '}
+              <Link to="/register" className="text-electric hover:text-cyan-400 font-semibold transition-colors">
+                Request Protocol 
+              </Link>
+            </p>
+          </div>
+        </div>
+
+        {/* System Info */}
+        <div className="mt-8 text-center flex items-center justify-center gap-4 text-[10px] font-mono text-gray-600 uppercase tracking-widest">
+          <span>Ver 4.6.0</span>
+          <span className="w-1 h-1 bg-gray-700 rounded-full"></span>
+          <span>Secure Layer Active</span>
+          <span className="w-1 h-1 bg-gray-700 rounded-full"></span>
+          <span>Node-2965</span>
+        </div>
       </div>
     </div>
   );

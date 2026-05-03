@@ -1,86 +1,36 @@
 import React from 'react';
-import { getMediaUrl } from '../../utils/getMediaUrl';
+import getMediaUrl from '../../utils/getMediaUrl';
 
 const Avatar = ({ src, name, size = 'md', className = '' }) => {
-  // Size classes mapped to index.css utility classes if they existed, or inline styles
-  const sizeMap = {
-    sm: '32px',
-    md: '40px',
-    lg: '56px',
-    xl: '80px',
+  const seed = name ? encodeURIComponent(name) : 'User';
+  // Futuristic DiceBear avatar fallback
+  const fallback = `https://api.dicebear.com/7.x/bottts/svg?seed=${seed}&colors=8b5cf6,06b6d4,161625&texture=circuits`;
+
+  const sizeClasses = {
+    sm: 'w-8 h-8',
+    md: 'w-10 h-10',
+    lg: 'w-16 h-16',
+    xl: 'w-24 h-24',
+    xxl: 'w-32 h-32'
   };
 
-  const dimension = sizeMap[size] || sizeMap.md;
-  const fontSize = `calc(${dimension} / 2.5)`;
-
-  const containerStyle = {
-    width: dimension,
-    height: dimension,
-    borderRadius: '50%',
-    overflow: 'hidden',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'var(--bg-elevated)',
-    border: '2px solid var(--border-default)',
-    flexShrink: 0,
-  };
-
-  if (src) {
-    return (
-      <div style={containerStyle} className={`avatar-container ${className}`}>
-        <img
-          src={getMediaUrl(src)}
-          alt={`${name}'s avatar`}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-        />
-      </div>
-    );
-  }
-
-  // Get initials (up to 2 letters)
-  const getInitials = (name) => {
-    if (!name) return '?';
-    const parts = name.trim().split(' ');
-    if (parts.length >= 2) {
-      return (parts[0][0] + parts[1][0]).toUpperCase();
-    }
-    return name.substring(0, 2).toUpperCase();
-  };
-
-  // Generate a consistent background color based on name string
-  const getBgColor = (name) => {
-    if (!name) return 'var(--clr-primary-dark)';
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const colors = [
-      'var(--clr-primary)',
-      'var(--clr-accent)',
-      '#FF9800',
-      '#4CAF50',
-      '#F44336',
-      '#9C27B0'
-    ];
-    const index = Math.abs(hash) % colors.length;
-    return colors[index];
-  };
+  const finalSrc = src ? getMediaUrl(src) : fallback;
 
   return (
-    <div
-      className={`avatar-container ${className}`}
-      style={{
-        ...containerStyle,
-        backgroundColor: getBgColor(name),
-        color: '#FFFFFF',
-        fontWeight: 'bold',
-        fontSize: fontSize,
-        letterSpacing: '1px'
-      }}
-      title={name}
-    >
-      {getInitials(name)}
+    <div className={`relative inline-block ${sizeClasses[size]} ${className} group`}>
+      {/* Outer Glow Ring on Hover */}
+      <div className="absolute -inset-1 bg-gradient-to-tr from-electric to-cyan-500 rounded-full blur-sm opacity-0 group-hover:opacity-70 transition-opacity duration-300"></div>
+      
+      {/* Avatar Image */}
+      <img
+        src={finalSrc}
+        alt={name || 'Avatar'}
+        className="w-full h-full object-cover rounded-full border-2 border-white/10 relative z-10 bg-void"
+        onError={(e) => {
+          e.target.onerror = null;
+          e.target.src = fallback;
+        }}
+      />
     </div>
   );
 };

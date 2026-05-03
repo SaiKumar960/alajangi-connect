@@ -1,152 +1,24 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-import { postsAPI } from '../../services/api';
 import usePosts from '../../hooks/usePosts';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
-import Navbar from '../../components/layout/Navbar';
-import Sidebar from '../../components/layout/Sidebar';
-import SuggestedUsers from '../../components/user/SuggestedUsers';
-import PostCard from '../../components/post/PostCard';
+import TopNav from '../../components/layout/TopNav';
+import MobileNav from '../../components/layout/MobileNav';
+import DynamicFeed from '../../components/feed/DynamicFeed';
+import AIInsightsPanel from '../../components/insights/AIInsightsPanel';
+import FloatingComposer from '../../components/composer/FloatingComposer';
 import Loader from '../../components/common/Loader';
-import Avatar from '../../components/common/Avatar';
-import { RiImageLine, RiSendPlaneLine, RiCloseLine } from 'react-icons/ri';
-import styles from './Home.module.css';
-import toast from 'react-hot-toast';
-
-const CreatePostPanel = ({ onPostCreated }) => {
-  const { user } = useAuth();
-  const [text, setText] = useState('');
-  const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
-  const fileRef = useRef(null);
-
-  // Avatar handles fallback automatically
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image must be under 5 MB');
-      return;
-    }
-    setImage(file);
-    setPreview(URL.createObjectURL(file));
-  };
-
-  const clearImage = () => {
-    setImage(null);
-    setPreview(null);
-    if (fileRef.current) fileRef.current.value = '';
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!text.trim()) return;
-
-    setSubmitting(true);
-    try {
-      const formData = new FormData();
-      formData.append('text', text.trim());
-      if (image) formData.append('image', image);
-
-      const { data } = await postsAPI.createPost(formData);
-      onPostCreated(data.post);
-      setText('');
-      clearImage();
-      toast.success('Post created!');
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to create post');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const charCount = text.length;
-  const charLimit = 2000;
-
-  return (
-    <div className={styles.createPanel}>
-      <div className={styles.createHeader}>
-        <Avatar src={user?.avatar} name={user?.name} size="md" />
-        <form onSubmit={handleSubmit} className={styles.createForm}>
-          <textarea
-            id="post-text-input"
-            className={styles.textarea}
-            placeholder={`What's on your mind, ${user?.name?.split(' ')[0]}?`}
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            rows={text.length > 80 ? 4 : 2}
-            maxLength={charLimit}
-            disabled={submitting}
-          />
-
-          {preview && (
-            <div className={styles.previewWrapper}>
-              <img src={preview} alt="Preview" className={styles.previewImg} />
-              <button
-                type="button"
-                className={styles.clearPreview}
-                onClick={clearImage}
-                aria-label="Remove image"
-              >
-                <RiCloseLine size={16} />
-              </button>
-            </div>
-          )}
-
-          <div className={styles.createActions}>
-            <div className={styles.createLeft}>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                id="post-image-input"
-                className={styles.fileInput}
-                onChange={handleFileChange}
-              />
-              <button
-                type="button"
-                className={styles.imageBtn}
-                onClick={() => fileRef.current?.click()}
-                aria-label="Attach image"
-              >
-                <RiImageLine size={19} />
-                Photo
-              </button>
-              {charCount > 0 && (
-                <span className={`${styles.charCount} ${charCount > charLimit * 0.9 ? styles.charWarn : ''}`}>
-                  {charCount}/{charLimit}
-                </span>
-              )}
-            </div>
-            <button
-              type="submit"
-              id="submit-post-btn"
-              className={styles.submitBtn}
-              disabled={!text.trim() || submitting}
-            >
-              {submitting ? (
-                <Loader inline />
-              ) : (
-                <>
-                  <RiSendPlaneLine size={16} />
-                  Post
-                </>
-              )}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-};
+import SuggestedUsers from '../../components/user/SuggestedUsers';
+import { RiAddLine } from 'react-icons/ri';
 
 const Home = () => {
+  const { user } = useAuth();
   const {
     posts, loading, hasMore, initialLoad, page,
     loadMore, addPostToFeed, toggleLike, removePost,
   } = usePosts();
+
+  const [isComposerOpen, setIsComposerOpen] = useState(false);
 
   // Initial load
   useEffect(() => { loadMore(1); }, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -158,66 +30,90 @@ const Home = () => {
   );
 
   return (
-    <>
-      <Navbar />
-      <div className="app-layout">
-        <div className="left-sidebar">
-          <Sidebar position="left" />
-        </div>
+    <div className="min-h-screen bg-void flex flex-col">
+      <TopNav />
+      
+      {/* Background Neural Grid */}
+      <div className="fixed inset-0 neural-bg opacity-30 pointer-events-none"></div>
 
-        <main className="main-content" id="main-feed">
-          {/* Create post */}
-          <CreatePostPanel onPostCreated={addPostToFeed} />
+      <main className="flex-1 w-full max-w-7xl mx-auto px-4 md:px-8 pt-24 pb-20 md:pb-8 flex gap-8 relative z-10">
+        
+        {/* Left spacing for centering if no panel */}
+        <div className="hidden lg:block w-0 xl:w-20"></div>
 
-          {/* Suggested Users for Mobile (hidden on desktop via CSS) */}
-          <div className={styles.mobileSuggested}>
+        {/* Center: Feed */}
+        <div className="flex-1 max-w-2xl">
+          
+          {/* Mobile Suggested Users */}
+          <div className="lg:hidden mb-8">
+            <h2 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 px-1">Network Recommendations</h2>
             <SuggestedUsers layout="horizontal" />
           </div>
 
-          {/* Feed */}
-          <section className={styles.feed} aria-label="Post feed">
-            {initialLoad ? (
-              <Loader text="Loading your feed…" />
-            ) : posts.length === 0 ? (
-              <div className={styles.emptyState}>
-                <p className={styles.emptyIcon}>🌟</p>
-                <h3>Nothing here yet</h3>
-                <p>Be the first to post something!</p>
+          {/* Dynamic Feed Content */}
+          {initialLoad ? (
+            <Loader text="Syncing with the neural network..." />
+          ) : posts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center glass-panel rounded-3xl border border-white/5">
+              <div className="w-20 h-20 bg-electric/10 rounded-full flex items-center justify-center mb-6 text-electric">
+                <RiAddLine size={40} className="animate-pulse" />
               </div>
-            ) : (
-              <>
-                {posts.map((post) => (
-                  <PostCard
-                    key={post._id}
-                    post={post}
-                    onLike={toggleLike}
-                    onDelete={removePost}
-                  />
-                ))}
+              <h3 className="text-xl font-bold text-white mb-2">The network is quiet</h3>
+              <p className="text-gray-400 max-w-xs mx-auto">Be the first to transmit a thought into the void.</p>
+              <button 
+                onClick={() => setIsComposerOpen(true)}
+                className="mt-6 px-8 py-3 bg-electric text-white rounded-full font-medium hover:shadow-[0_0_20px_rgba(139,92,246,0.5)] transition-all"
+              >
+                Start Transmission
+              </button>
+            </div>
+          ) : (
+            <>
+              <DynamicFeed 
+                posts={posts} 
+                onLike={toggleLike} 
+                onDelete={removePost} 
+              />
 
-                {/* Infinite scroll sentinel */}
-                <div ref={sentinelRef} className={styles.sentinel} aria-hidden="true" />
-
+              {/* Infinite scroll sentinel */}
+              <div ref={sentinelRef} className="h-20 flex items-center justify-center">
                 {loading && !initialLoad && (
-                  <div className={styles.loadingMore}>
-                    <Loader inline />
-                    <span>Loading more…</span>
+                  <Loader inline text="Fetching more frequencies..." />
+                )}
+                {!hasMore && posts.length > 0 && (
+                  <div className="py-10 text-center">
+                    <span className="text-xs font-mono text-gray-600 tracking-[0.3em] uppercase">End of transmission</span>
                   </div>
                 )}
-
-                {!hasMore && posts.length > 0 && (
-                  <p className={styles.endMessage}>You&apos;re all caught up! 🎉</p>
-                )}
-              </>
-            )}
-          </section>
-        </main>
-
-        <div className="right-sidebar">
-          <Sidebar position="right" />
+              </div>
+            </>
+          )}
         </div>
-      </div>
-    </>
+
+        {/* Right: AI Insights */}
+        <AIInsightsPanel />
+
+      </main>
+
+      {/* Floating Composer Modal */}
+      <FloatingComposer 
+        isOpen={isComposerOpen} 
+        onClose={() => setIsComposerOpen(false)} 
+        onPostCreated={addPostToFeed}
+      />
+
+      {/* Desktop Floating Action Button */}
+      <button 
+        onClick={() => setIsComposerOpen(true)}
+        className="hidden md:flex fixed bottom-10 right-10 w-16 h-16 rounded-2xl bg-gradient-to-tr from-electric to-cyan-500 items-center justify-center text-white shadow-2xl shadow-electric/40 hover:scale-110 active:scale-95 transition-all z-40 group"
+      >
+        <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+        <RiAddLine size={32} />
+      </button>
+
+      {/* Mobile Navigation */}
+      <MobileNav onOpenComposer={() => setIsComposerOpen(true)} />
+    </div>
   );
 };
 
