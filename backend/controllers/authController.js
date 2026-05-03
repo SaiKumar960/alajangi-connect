@@ -19,8 +19,8 @@ const register = async (req, res, next) => {
     let avatarPublicId = undefined;
 
     if (req.file) {
-      avatar = `/uploads/${req.file.filename}`;
-      avatarPublicId = req.file.filename;
+      avatar = req.file.path;        // Cloudinary URL
+      avatarPublicId = req.file.filename; // Cloudinary public_id
     }
 
     const user = await User.create({ name, email, password, avatar, avatarPublicId });

@@ -1,8 +1,6 @@
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 const { cloudinary } = require('../config/cloudinary');
-const fs = require('fs');
-const path = require('path');
 
 /**
  * @desc    Create a new post
@@ -14,10 +12,10 @@ const createPost = async (req, res, next) => {
     const { text } = req.body;
     const postData = { author: req.user._id, text };
 
-    // If a file was uploaded via local multer, store the public URL path
+    // If a file was uploaded, store the Cloudinary URL
     if (req.file) {
-      postData.imageUrl = `/uploads/${req.file.filename}`;
-      postData.imagePublicId = req.file.filename; // keeping this for deletion logic
+      postData.imageUrl = req.file.path;          // Cloudinary URL
+      postData.imagePublicId = req.file.filename; // Cloudinary public_id
     }
 
     const post = await Post.create(postData);
@@ -147,12 +145,9 @@ const deletePost = async (req, res, next) => {
       return res.status(403).json({ success: false, message: 'Not authorized to delete this post' });
     }
 
-    // Delete local image file if present
+    // Delete image from Cloudinary if present
     if (post.imagePublicId) {
-      const filePath = path.join(__dirname, '../uploads', post.imagePublicId);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
-      }
+      await cloudinary.uploader.destroy(post.imagePublicId);
     }
 
     await Promise.all([

@@ -172,8 +172,8 @@ const updateProfile = async (req, res, next) => {
       if (existingUser.avatarPublicId) {
         await cloudinary.uploader.destroy(existingUser.avatarPublicId);
       }
-      updates.avatar = `/uploads/${req.file.filename}`;
-      updates.avatarPublicId = req.file.filename;
+      updates.avatar = req.file.path;          // Cloudinary URL
+      updates.avatarPublicId = req.file.filename; // Cloudinary public_id
     }
 
     const user = await User.findByIdAndUpdate(req.user._id, updates, {
