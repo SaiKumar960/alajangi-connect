@@ -1,0 +1,180 @@
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  margin-bottom: var(--space-md);
+}
+
+.card:hover {
+  border-color: var(--border-default);
+  box-shadow: var(--shadow-md);
+}
+
+/* ─── Header ─── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-md) 0;
+}
+
+.authorLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  text-decoration: none;
+}
+
+.authorName {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  transition: color var(--transition-fast);
+}
+
+.authorLink:hover .authorName {
+  color: var(--clr-primary-light);
+}
+
+.time {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ─── Menu ─── */
+.menuWrapper {
+  position: relative;
+}
+
+.menuBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.menuBtn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 6px;
+  min-width: 150px;
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+  animation: fadeIn 0.15s ease;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+}
+
+.deleteItem:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--clr-danger);
+}
+
+/* ─── Body ─── */
+.body {
+  padding: var(--space-md);
+}
+
+.text {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.imageWrapper {
+  margin-top: var(--space-md);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+}
+
+.postImage {
+  width: 100%;
+  max-height: 520px;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.imageWrapper:hover .postImage {
+  transform: scale(1.01);
+}
+
+/* ─── Actions ─── */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-family: inherit;
+}
+
+.actionBtn:hover {
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+}
+
+.actionBtn.liked {
+  color: var(--clr-accent);
+}
+
+.heartFilled {
+  filter: drop-shadow(0 0 4px rgba(255, 101, 132, 0.5));
+}
+
+/* ─── Comments section ─── */
+.commentsSection {
+  border-top: 1px solid var(--border-subtle);
+  padding: var(--space-md);
+  background: var(--bg-base);
+}
