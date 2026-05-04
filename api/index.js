@@ -54,6 +54,7 @@ app.use(async (req, res, next) => {
 const authRoutes = require('../backend/routes/authRoutes');
 const postRoutes = require('../backend/routes/postRoutes');
 const userRoutes = require('../backend/routes/userRoutes');
+const notificationRoutes = require('../backend/routes/notificationRoutes');
 const { errorHandler, notFound } = require('../backend/middleware/errorMiddleware');
 
 app.get('/api/health', (req, res) => {
@@ -67,6 +68,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

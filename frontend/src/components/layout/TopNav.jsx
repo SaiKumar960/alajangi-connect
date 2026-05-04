@@ -75,11 +75,14 @@ const TopNav = () => {
           </button>
 
           {/* Notifications */}
-          <button className="relative p-2 text-gray-400 hover:text-electric transition-colors group">
+          <Link 
+            to="/notifications"
+            className="relative p-2 text-gray-400 hover:text-electric transition-colors group"
+          >
             <div className="absolute inset-0 bg-electric/10 rounded-full scale-0 group-hover:scale-100 transition-transform"></div>
             <RiNotification3Line size={22} className="relative z-10" />
             <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-cyan-500 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.8)]"></span>
-          </button>
+          </Link>
 
           {/* Profile Menu */}
           <div className="relative">

@@ -110,6 +110,8 @@ const getPostById = async (req, res, next) => {
   }
 };
 
+const { createNotification } = require('./notificationController');
+
 /**
  * @desc    Like or unlike a post (toggle)
  * @route   POST /api/posts/:id/like
@@ -129,6 +131,8 @@ const toggleLike = async (req, res, next) => {
       post.likes = post.likes.filter((id) => id.toString() !== userId.toString());
     } else {
       post.likes.push(userId);
+      // Trigger notification
+      await createNotification(post.author, userId, 'like', post._id);
     }
 
     await post.save();

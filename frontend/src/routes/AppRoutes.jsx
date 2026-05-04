@@ -6,6 +6,7 @@ import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Profile from '../pages/Profile';
 import Explore from '../pages/Explore';
+import Notifications from '../pages/Notifications';
 import Loader from '../components/common/Loader';
 
 // Redirects unauthenticated users to /login
@@ -61,6 +62,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <AnimatedPage><Explore /></AnimatedPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <AnimatedPage><Notifications /></AnimatedPage>
             </ProtectedRoute>
           }
         />

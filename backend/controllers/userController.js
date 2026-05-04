@@ -38,6 +38,8 @@ const getUserProfile = async (req, res, next) => {
   }
 };
 
+const { createNotification } = require('./notificationController');
+
 /**
  * @desc    Follow / Unfollow user
  * @route   POST /api/users/:id/follow
@@ -64,6 +66,8 @@ const toggleFollow = async (req, res, next) => {
     } else {
       currentUser.following.push(targetUser._id);
       targetUser.followers.push(currentUser._id);
+      // Trigger notification
+      await createNotification(targetUser._id, currentUser._id, 'follow');
     }
 
     await Promise.all([currentUser.save(), targetUser.save()]);
