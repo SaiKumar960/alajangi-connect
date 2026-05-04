@@ -14,6 +14,16 @@ const protect = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
+    if (global.useMemoryDb) {
+      const memoryStore = require('../utils/memoryStore');
+      const user = await memoryStore.findUserById(decoded.id);
+      if (!user) {
+        return res.status(401).json({ success: false, message: 'User not found (Memory)' });
+      }
+      req.user = user;
+      return next();
+    }
+
     const user = await User.findById(decoded.id).select('-password');
     if (!user) {
       return res.status(401).json({ success: false, message: 'User not found' });
