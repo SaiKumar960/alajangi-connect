@@ -78,6 +78,10 @@ app.use(errorHandler);
 
 // ─── Start server ─────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
-httpServer.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT} [${process.env.NODE_ENV}]`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  httpServer.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT} [${process.env.NODE_ENV}]`);
+  });
+}
+
+module.exports = app;
