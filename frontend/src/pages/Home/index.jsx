@@ -36,26 +36,26 @@ const Home = () => {
   }, [feedFilter]);
 
   return (
-    <div className="min-h-screen bg-void flex flex-col">
+    <div className="min-h-screen bg-void flex flex-col overflow-x-hidden">
       <TopNav />
       
       {/* Background Neural Grid */}
       <div className="fixed inset-0 neural-bg opacity-30 pointer-events-none"></div>
 
-      <main className="flex-1 w-full max-w-6xl mx-auto px-4 md:px-8 pt-24 pb-24 relative z-10">
+      <main className="flex-1 w-full max-w-6xl mx-auto px-0 md:px-8 pt-24 pb-24 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           
           {/* Center/Main: Feed */}
           <div className="lg:col-span-2 max-w-2xl mx-auto w-full">
             
             {/* Mobile Suggested Users */}
-            <div className="lg:hidden mb-8">
+            <div className="lg:hidden mb-8 px-4">
               <h2 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 px-1">Suggested Users</h2>
               <SuggestedUsers layout="horizontal" />
             </div>
 
             {/* Feed Filter Tabs */}
-            <div className="flex items-center gap-1 mb-6 p-1 bg-white/5 rounded-2xl border border-white/5">
+            <div className="flex items-center gap-1 mb-6 mx-4 md:mx-0 p-1 bg-white/5 rounded-2xl border border-white/5">
               <button
                 onClick={() => handleFilterChange('')}
                 className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all ${
@@ -84,7 +84,7 @@ const Home = () => {
             {initialLoad ? (
               <Loader text="Loading your feed..." />
             ) : posts.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center glass-panel rounded-3xl border border-white/5">
+              <div className="flex flex-col items-center justify-center py-20 mx-4 md:mx-0 text-center glass-panel rounded-3xl border border-white/5">
                 <div className="w-20 h-20 bg-electric/10 rounded-full flex items-center justify-center mb-6 text-electric">
                   <RiAddLine size={40} className="animate-pulse" />
                 </div>
@@ -107,12 +107,14 @@ const Home = () => {
               </div>
             ) : (
               <>
+              <div className="px-4 md:px-0">
                 <DynamicFeed 
                   posts={posts} 
                   onLike={toggleLike} 
                   onDelete={removePost}
                   onEdit={editPost}
                 />
+              </div>
 
                 {/* Infinite scroll sentinel */}
                 <div ref={sentinelRef} className="h-20 flex items-center justify-center">
