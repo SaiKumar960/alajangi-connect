@@ -10,7 +10,7 @@ router.get('/me/saved', protect, getSavedPosts);
 
 router.get('/:id', protect, getUserProfile);
 router.get('/:id/posts', protect, getUserPosts);
-router.put('/me', protect, upload.single('avatar'), updateProfile);
+router.put('/me', protect, upload.fields([{ name: 'avatar', maxCount: 1 }, { name: 'banner', maxCount: 1 }]), updateProfile);
 router.post('/:id/follow', protect, toggleFollow);
 
 module.exports = router;

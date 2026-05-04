@@ -27,6 +27,18 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    avatarPublicId: {
+      type: String,
+      default: '',
+    },
+    banner: {
+      type: String,
+      default: '',
+    },
+    bannerPublicId: {
+      type: String,
+      default: '',
+    },
     bio: {
       type: String,
       maxlength: [160, 'Bio cannot exceed 160 characters'],

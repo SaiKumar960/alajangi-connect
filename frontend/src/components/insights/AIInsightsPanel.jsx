@@ -1,13 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import SuggestedUsers from '../user/SuggestedUsers';
 import { RiLightbulbLine, RiFireLine, RiUserFollowLine, RiRadarLine } from 'react-icons/ri';
 import { useAuth } from '../../hooks/useAuth';
 
+import api from '../../services/api';
+
 const AIInsightsPanel = () => {
   const { user } = useAuth();
+  const [trendingTopics, setTrendingTopics] = React.useState([]);
 
-  // Real-time trends will be fetched from API in Phase 2
-  const trendingTopics = [];
+  useEffect(() => {
+    const fetchTrends = async () => {
+      try {
+        const { data } = await api.get('/posts/trending');
+        setTrendingTopics(data.trends || []);
+      } catch (err) {
+        console.error('Failed to load trends', err);
+      }
+    };
+    fetchTrends();
+  }, []);
 
   return (
     <div className="sticky top-24 w-80 flex-col gap-6 hidden lg:flex">

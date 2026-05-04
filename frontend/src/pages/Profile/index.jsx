@@ -10,6 +10,7 @@ import GlowButton from '../../components/common/GlowButton';
 import PostCardStandard from '../../components/post/PostCardStandard';
 import PostCardCompact from '../../components/post/PostCardCompact';
 import FloatingComposer from '../../components/composer/FloatingComposer';
+import EditProfileModal from '../../components/user/EditProfileModal';
 import { RiEditLine, RiUserAddLine, RiUserFollowLine, RiMapPinLine, RiCalendarLine, RiPulseLine } from 'react-icons/ri';
 import toast from 'react-hot-toast';
 
@@ -99,8 +100,13 @@ const Profile = () => {
         {/* Profile Header */}
         <div className="glass-panel rounded-3xl overflow-hidden border border-white/5 mb-8">
           {/* Cover Area */}
-          <div className="h-32 sm:h-48 bg-gradient-to-r from-electric to-cyan-500 opacity-20 relative">
-            <div className="absolute inset-0 neural-bg"></div>
+          <div className="h-32 sm:h-48 relative overflow-hidden bg-void">
+            {user.banner ? (
+              <img src={user.banner} alt="Profile Banner" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full bg-gradient-to-r from-electric to-cyan-500 opacity-20"></div>
+            )}
+            <div className="absolute inset-0 neural-bg opacity-30"></div>
           </div>
 
           {/* Info Area */}

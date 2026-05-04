@@ -13,6 +13,10 @@ const { addComment, getComments, deleteComment } = require('../controllers/comme
 const { protect } = require('../middleware/authMiddleware');
 const { validatePost, validateComment } = require('../middleware/validate');
 const { upload } = require('../config/cloudinary');
+const { getTrendingTags } = require('../controllers/trendController');
+
+// Trending topics
+router.get('/trending', protect, getTrendingTags);
 
 // Feed & single post
 router.get('/', protect, getFeed);

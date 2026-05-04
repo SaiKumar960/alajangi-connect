@@ -3,6 +3,8 @@ const Comment = require('../models/Comment');
 const User = require('../models/User');
 const { cloudinary } = require('../config/cloudinary');
 
+const { updateTrends } = require('./trendController');
+
 /**
  * @desc    Create a new post
  * @route   POST /api/posts
@@ -22,6 +24,11 @@ const createPost = async (req, res, next) => {
 
     const post = await Post.create(postData);
     await post.populate('author', 'name avatar');
+
+    // Extract and update trends
+    if (text) {
+      await updateTrends(text, post._id);
+    }
 
     res.status(201).json({ success: true, post });
   } catch (error) {

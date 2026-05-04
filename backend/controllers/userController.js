@@ -172,13 +172,24 @@ const updateProfile = async (req, res, next) => {
     if (req.body.bio !== undefined) updates.bio = req.body.bio.trim();
 
     const existingUser = await User.findById(req.user._id);
-    if (req.file && existingUser.avatarPublicId) {
-      await cloudinary.uploader.destroy(existingUser.avatarPublicId);
-    }
 
-    if (req.file) {
-      updates.avatar = req.file.path;
-      updates.avatarPublicId = req.file.filename;
+    // Handle files (avatar and banner)
+    if (req.files) {
+      if (req.files.avatar && req.files.avatar[0]) {
+        if (existingUser.avatarPublicId) {
+          await cloudinary.uploader.destroy(existingUser.avatarPublicId);
+        }
+        updates.avatar = req.files.avatar[0].path;
+        updates.avatarPublicId = req.files.avatar[0].filename;
+      }
+
+      if (req.files.banner && req.files.banner[0]) {
+        if (existingUser.bannerPublicId) {
+          await cloudinary.uploader.destroy(existingUser.bannerPublicId);
+        }
+        updates.banner = req.files.banner[0].path;
+        updates.bannerPublicId = req.files.banner[0].filename;
+      }
     }
 
     const user = await User.findByIdAndUpdate(req.user._id, updates, {
