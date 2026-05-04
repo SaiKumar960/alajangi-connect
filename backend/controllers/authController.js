@@ -1,5 +1,5 @@
+const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
-const memoryStore = require('../utils/memoryStore');
 const bcrypt = require('bcryptjs');
 
 /**
@@ -10,18 +10,6 @@ const bcrypt = require('bcryptjs');
 const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
-
-    if (global.useMemoryDb) {
-      const existing = await memoryStore.findUserByEmail(email);
-      if (existing) return res.status(409).json({ success: false, message: 'An account with this email already exists' });
-      
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-      
-      const user = await memoryStore.createUser({ name, email, password: hashedPassword });
-      const token = generateToken(user._id);
-      return res.status(201).json({ success: true, message: 'Account created (Alpha Memory)', token, user });
-    }
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -65,17 +53,6 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
-    if (global.useMemoryDb) {
-      const user = await memoryStore.findUserByEmail(email);
-      if (!user) return res.status(401).json({ success: false, message: 'Invalid email or password' });
-      
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) return res.status(401).json({ success: false, message: 'Invalid email or password' });
-      
-      const token = generateToken(user._id);
-      return res.status(200).json({ success: true, message: 'Logged in (Alpha Memory)', token, user });
-    }
 
     // Explicitly select password (excluded by default via schema)
     const user = await User.findOne({ email }).select('+password');

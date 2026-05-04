@@ -53,7 +53,6 @@ const SuggestedUsers = ({ layout = 'vertical' }) => {
               <Link to={`/profile/${u._id}`} className="flex flex-col items-center">
                 <Avatar src={u.avatar} name={u.name} size="lg" className="mb-2" />
                 <p className="text-sm font-medium text-white truncate w-full text-center group-hover:text-cyan-400 transition-colors">{u.name}</p>
-                <p className="text-xs text-gray-500 truncate w-full text-center mb-3">{u.email}</p>
               </Link>
               <button
                 onClick={() => handleFollow(u._id)}
@@ -84,7 +83,6 @@ const SuggestedUsers = ({ layout = 'vertical' }) => {
               <Avatar src={u.avatar} name={u.name} size="sm" />
               <div className="overflow-hidden">
                 <p className="text-sm font-medium text-white truncate group-hover:text-cyan-400 transition-colors">{u.name}</p>
-                <p className="text-xs text-gray-500 truncate">{u.email}</p>
               </div>
             </Link>
             <button

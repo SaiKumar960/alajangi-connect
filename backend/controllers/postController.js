@@ -1,7 +1,6 @@
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
 const { cloudinary } = require('../config/cloudinary');
-const memoryStore = require('../utils/memoryStore');
 
 /**
  * @desc    Create a new post
@@ -11,15 +10,6 @@ const memoryStore = require('../utils/memoryStore');
 const createPost = async (req, res, next) => {
   try {
     const { text } = req.body;
-
-    if (global.useMemoryDb) {
-      const post = await memoryStore.createPost({
-        author: { _id: req.user._id, name: req.user.name, avatar: req.user.avatar },
-        text,
-        imageUrl: req.file ? req.file.path : undefined,
-      });
-      return res.status(201).json({ success: true, post });
-    }
 
     const postData = { author: req.user._id, text };
 
@@ -47,15 +37,6 @@ const getFeed = async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(50, parseInt(req.query.limit) || 10);
-
-    if (global.useMemoryDb) {
-      const posts = await memoryStore.getFeed(page, limit);
-      return res.status(200).json({
-        success: true,
-        posts,
-        pagination: { page, limit, total: memoryStore.posts.length, hasMore: page * limit < memoryStore.posts.length },
-      });
-    }
 
     const skip = (page - 1) * limit;
 
@@ -99,12 +80,6 @@ const getFeed = async (req, res, next) => {
  */
 const getPostById = async (req, res, next) => {
   try {
-    if (global.useMemoryDb) {
-      const post = await memoryStore.posts.find(p => p._id === req.params.id);
-      if (!post) return res.status(404).json({ success: false, message: 'Post not found' });
-      return res.status(200).json({ success: true, post: { ...post, isLiked: false, likesCount: post.likes.length } });
-    }
-
     const post = await Post.findById(req.params.id).populate('author', 'name avatar');
     if (!post) {
       return res.status(404).json({ success: false, message: 'Post not found' });
@@ -130,12 +105,6 @@ const getPostById = async (req, res, next) => {
  */
 const toggleLike = async (req, res, next) => {
   try {
-    if (global.useMemoryDb) {
-      const result = await memoryStore.toggleLike(req.params.id, req.user._id);
-      if (!result) return res.status(404).json({ success: false, message: 'Post not found' });
-      return res.status(200).json({ success: true, isLiked: result.isLiked, likesCount: result.count });
-    }
-
     const post = await Post.findById(req.params.id);
     if (!post) {
       return res.status(404).json({ success: false, message: 'Post not found' });

@@ -1,7 +1,6 @@
 const User = require('../models/User');
 const Post = require('../models/Post');
 const { cloudinary } = require('../config/cloudinary');
-const memoryStore = require('../utils/memoryStore');
 
 /**
  * @desc    Get user profile by ID
@@ -10,12 +9,6 @@ const memoryStore = require('../utils/memoryStore');
  */
 const getUserProfile = async (req, res, next) => {
   try {
-    if (global.useMemoryDb) {
-      const user = await memoryStore.findUserById(req.params.id);
-      if (!user) return res.status(404).json({ success: false, message: 'User not found' });
-      return res.status(200).json({ success: true, user: { ...user, postsCount: 0, followersCount: 0, followingCount: 0, isFollowing: false } });
-    }
-
     const user = await User.findById(req.params.id)
       .select('-password')
       .populate('followers', 'name avatar')
@@ -54,11 +47,6 @@ const toggleFollow = async (req, res, next) => {
   try {
     if (req.user._id.toString() === req.params.id) {
       return res.status(400).json({ success: false, message: "You cannot follow yourself" });
-    }
-
-    if (global.useMemoryDb) {
-      // Memory store doesn't handle follows yet in this simple mock, just return success
-      return res.status(200).json({ success: true, isFollowing: true, followersCount: 1 });
     }
 
     const targetUser = await User.findById(req.params.id);
@@ -100,11 +88,6 @@ const searchUsers = async (req, res, next) => {
     const query = req.query.q;
     if (!query) return res.status(200).json({ success: true, users: [] });
 
-    if (global.useMemoryDb) {
-      const users = await memoryStore.searchUsers(req.query.q);
-      return res.status(200).json({ success: true, users });
-    }
-
     const regex = new RegExp(query, 'i');
     const users = await User.find({ name: regex }).select('name avatar bio').limit(10);
     res.status(200).json({ success: true, users });
@@ -120,11 +103,6 @@ const searchUsers = async (req, res, next) => {
  */
 const getSuggestedUsers = async (req, res, next) => {
   try {
-    if (global.useMemoryDb) {
-      const suggested = memoryStore.users.slice(0, 5).map(u => ({ _id: u._id, name: u.name, avatar: u.avatar, bio: u.bio }));
-      return res.status(200).json({ success: true, users: suggested });
-    }
-
     const currentUser = await User.findById(req.user._id);
     const excludedIds = [...currentUser.following, currentUser._id];
 
@@ -149,11 +127,6 @@ const getUserPosts = async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(30, parseInt(req.query.limit) || 12);
-
-    if (global.useMemoryDb) {
-      const userPosts = memoryStore.posts.filter(p => p.author._id === req.params.id || p.author === req.params.id);
-      return res.status(200).json({ success: true, posts: userPosts, pagination: { page, limit, total: userPosts.length, hasMore: false } });
-    }
 
     const skip = (page - 1) * limit;
 
@@ -193,10 +166,6 @@ const updateProfile = async (req, res, next) => {
     const updates = {};
     if (req.body.name) updates.name = req.body.name.trim();
     if (req.body.bio !== undefined) updates.bio = req.body.bio.trim();
-
-    if (global.useMemoryDb) {
-      return res.status(200).json({ success: true, user: { ...req.user, ...updates } });
-    }
 
     const existingUser = await User.findById(req.user._id);
     if (req.file && existingUser.avatarPublicId) {

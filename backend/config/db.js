@@ -8,11 +8,9 @@ const connectDB = async () => {
       socketTimeoutMS: 45000,
     });
     console.log(`✅ MongoDB connected: ${conn.connection.host}`);
-    global.useMemoryDb = false;
   } catch (error) {
     console.error(`❌ MongoDB connection error: ${error.message}`);
-    console.log('⚠️ SWITCHING TO IN-MEMORY DATABASE FOR ALPHA TESTING');
-    global.useMemoryDb = true;
+    process.exit(1);
   }
 };
 

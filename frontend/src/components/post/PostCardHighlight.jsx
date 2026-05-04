@@ -42,7 +42,6 @@ const PostCardHighlight = ({ post, onLike, onDelete }) => {
             <Avatar src={post.author?.avatar} name={post.author?.name} size="md" />
             <div>
               <h3 className="font-medium text-white text-sm">{post.author?.name}</h3>
-              <p className="text-xs text-gray-400">{post.author?.email}</p>
             </div>
           </Link>
           

@@ -6,13 +6,8 @@ import { useAuth } from '../../hooks/useAuth';
 const AIInsightsPanel = () => {
   const { user } = useAuth();
 
-  // Mock trending topics based on the app's context
-  const trendingTopics = [
-    { tag: '#FutureTech', score: 98 },
-    { tag: '#AI', score: 85 },
-    { tag: '#WebDevelopment', score: 72 },
-    { tag: '#Design', score: 64 },
-  ];
+  // Real-time trends will be fetched from API in Phase 2
+  const trendingTopics = [];
 
   return (
     <div className="sticky top-24 w-80 flex-col gap-6 hidden lg:flex">
@@ -49,7 +44,7 @@ const AIInsightsPanel = () => {
         </div>
 
         <div className="flex flex-col gap-3 relative z-10">
-          {trendingTopics.map((topic, i) => (
+          {trendingTopics.length > 0 ? trendingTopics.map((topic, i) => (
             <div key={topic.tag} className="flex items-center justify-between group/tag cursor-pointer">
               <span className="text-sm font-medium text-gray-300 group-hover/tag:text-electric transition-colors">
                 {topic.tag}
@@ -66,7 +61,11 @@ const AIInsightsPanel = () => {
                 </span>
               </div>
             </div>
-          ))}
+          )) : (
+            <div className="py-2 text-center">
+              <p className="text-[10px] text-gray-500 font-mono tracking-widest uppercase">Analyzing Network...</p>
+            </div>
+          )}
         </div>
       </div>
 
