@@ -1,5 +1,6 @@
 const Post = require('../models/Post');
 const Comment = require('../models/Comment');
+const User = require('../models/User');
 const { cloudinary } = require('../config/cloudinary');
 
 /**
@@ -37,24 +38,35 @@ const getFeed = async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(50, parseInt(req.query.limit) || 10);
-
+    const filter = req.query.filter; // 'following' or undefined
     const skip = (page - 1) * limit;
 
+    // Build query filter
+    let query = {};
+    if (filter === 'following') {
+      const currentUser = await User.findById(req.user._id).select('following');
+      query = { author: { $in: currentUser.following } };
+    }
+
     const [posts, total] = await Promise.all([
-      Post.find()
+      Post.find(query)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(limit)
         .populate('author', 'name avatar'),
-      Post.countDocuments(),
+      Post.countDocuments(query),
     ]);
 
-    // Attach isLiked flag for the requesting user
+    // Attach isLiked + isSaved flags
     const userId = req.user._id.toString();
+    const savedSet = new Set(
+      (req.user.savedPosts || []).map((id) => id.toString())
+    );
     const enriched = posts.map((p) => ({
       ...p.toObject(),
       isLiked: p.likes.some((id) => id.toString() === userId),
       likesCount: p.likes.length,
+      isSaved: savedSet.has(p._id.toString()),
     }));
 
     res.status(200).json({
@@ -163,4 +175,64 @@ const deletePost = async (req, res, next) => {
   }
 };
 
-module.exports = { createPost, getFeed, getPostById, toggleLike, deletePost };
+/**
+ * @desc    Edit a post (author only)
+ * @route   PUT /api/posts/:id
+ * @access  Private
+ */
+const editPost = async (req, res, next) => {
+  try {
+    const post = await Post.findById(req.params.id);
+    if (!post) {
+      return res.status(404).json({ success: false, message: 'Post not found' });
+    }
+
+    if (post.author.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Not authorized to edit this post' });
+    }
+
+    post.text = req.body.text;
+    await post.save();
+    await post.populate('author', 'name avatar');
+
+    res.status(200).json({ success: true, post: post.toObject() });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * @desc    Toggle save/bookmark a post
+ * @route   POST /api/posts/:id/save
+ * @access  Private
+ */
+const toggleSave = async (req, res, next) => {
+  try {
+    const postId = req.params.id;
+    const post = await Post.findById(postId);
+    if (!post) {
+      return res.status(404).json({ success: false, message: 'Post not found' });
+    }
+
+    const user = await User.findById(req.user._id);
+    const alreadySaved = user.savedPosts.some((id) => id.toString() === postId);
+
+    if (alreadySaved) {
+      user.savedPosts = user.savedPosts.filter((id) => id.toString() !== postId);
+    } else {
+      user.savedPosts.push(postId);
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      isSaved: !alreadySaved,
+      savedCount: user.savedPosts.length,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { createPost, getFeed, getPostById, toggleLike, deletePost, editPost, toggleSave };

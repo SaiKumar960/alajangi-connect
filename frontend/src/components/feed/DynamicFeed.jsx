@@ -5,7 +5,7 @@ import PostCardCompact from '../post/PostCardCompact';
 import PostCardHighlight from '../post/PostCardHighlight';
 import { RiFireLine, RiRobot2Line, RiVoiceprintLine } from 'react-icons/ri';
 
-const DynamicFeed = ({ posts, onLike, onDelete }) => {
+const DynamicFeed = ({ posts, onLike, onDelete, onEdit }) => {
   if (!posts || posts.length === 0) return null;
 
   // Split logic:
@@ -26,7 +26,7 @@ const DynamicFeed = ({ posts, onLike, onDelete }) => {
             <PostCardHighlight post={trendingPosts[0]} onLike={onLike} onDelete={onDelete} />
           )}
           {trendingPosts[1] && (
-            <PostCardStandard post={trendingPosts[1]} onLike={onLike} onDelete={onDelete} />
+            <PostCardStandard post={trendingPosts[1]} onLike={onLike} onDelete={onDelete} onEdit={onEdit} />
           )}
         </FeedSection>
       )}
@@ -35,7 +35,7 @@ const DynamicFeed = ({ posts, onLike, onDelete }) => {
       {aiRecommendsPosts.length > 0 && (
         <FeedSection title="Recommended for You" icon={RiRobot2Line} layout="list">
           {aiRecommendsPosts.map(post => (
-            <PostCardStandard key={post._id} post={post} onLike={onLike} onDelete={onDelete} />
+            <PostCardStandard key={post._id} post={post} onLike={onLike} onDelete={onDelete} onEdit={onEdit} />
           ))}
         </FeedSection>
       )}

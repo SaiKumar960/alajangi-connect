@@ -51,11 +51,17 @@ export const authAPI = {
 
 // ─── Posts API ───────────────────────────────────────────────────────────────
 export const postsAPI = {
-  getFeed: (page = 1, limit = 10) => api.get(`/posts?page=${page}&limit=${limit}`),
+  getFeed: (page = 1, limit = 10, filter = '') => {
+    const params = new URLSearchParams({ page, limit });
+    if (filter) params.append('filter', filter);
+    return api.get(`/posts?${params.toString()}`);
+  },
   getPost: (id) => api.get(`/posts/${id}`),
   createPost: (formData) => api.post('/posts', formData),
+  editPost: (id, text) => api.put(`/posts/${id}`, { text }),
   deletePost: (id) => api.delete(`/posts/${id}`),
   toggleLike: (id) => api.post(`/posts/${id}/like`),
+  toggleSave: (id) => api.post(`/posts/${id}/save`),
   addComment: (id, text) => api.post(`/posts/${id}/comment`, { text }),
   getComments: (id, page = 1) => api.get(`/posts/${id}/comments?page=${page}`),
   deleteComment: (postId, commentId) => api.delete(`/posts/${postId}/comments/${commentId}`),
@@ -66,11 +72,12 @@ export const userAPI = {
   searchUsers: (query) => api.get(`/users/search?q=${encodeURIComponent(query)}`),
   getSuggestedUsers: () => api.get('/users/suggestions'),
   getProfile: (id) => api.get(`/users/${id}`),
-  getUser: (id) => api.get(`/users/${id}`), // Alias for Profile
+  getUser: (id) => api.get(`/users/${id}`),
   getUserPosts: (id, page = 1) => api.get(`/users/${id}/posts?page=${page}`),
+  getSavedPosts: (page = 1) => api.get(`/users/me/saved?page=${page}`),
   updateProfile: (formData) => api.put('/users/me', formData),
   toggleFollow: (id) => api.post(`/users/${id}/follow`),
-  followUser: (id) => api.post(`/users/${id}/follow`), // Alias for toggleFollow
+  followUser: (id) => api.post(`/users/${id}/follow`),
 };
 
 export default api;

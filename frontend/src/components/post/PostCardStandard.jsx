@@ -4,13 +4,42 @@ import { useAuth } from '../../hooks/useAuth';
 import Avatar from '../common/Avatar';
 import PostActions from './PostActions';
 import getMediaUrl from '../../utils/getMediaUrl';
-import { RiMoreFill, RiDeleteBin6Line } from 'react-icons/ri';
+import { postsAPI } from '../../services/api';
+import { RiMoreFill, RiDeleteBin6Line, RiEditLine, RiCheckLine, RiCloseLine } from 'react-icons/ri';
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
-const PostCardStandard = ({ post, onLike, onDelete }) => {
+const PostCardStandard = ({ post, onLike, onDelete, onEdit }) => {
   const { user } = useAuth();
   const [showMenu, setShowMenu] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [editText, setEditText] = useState(post.text);
+  const [saving, setSaving] = useState(false);
   const isOwner = user?._id === post.author?._id;
+
+  const handleSaveEdit = async () => {
+    if (!editText.trim() || editText.trim() === post.text) {
+      setEditing(false);
+      setEditText(post.text);
+      return;
+    }
+    setSaving(true);
+    try {
+      const { data } = await postsAPI.editPost(post._id, editText.trim());
+      if (onEdit) onEdit(post._id, data.post);
+      toast.success('Post updated');
+      setEditing(false);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update post');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditing(false);
+    setEditText(post.text);
+  };
 
   return (
     <article className="glass-panel rounded-2xl p-4 sm:p-5 mb-4 group hover:glow-border transition-all duration-500 relative">
@@ -48,6 +77,16 @@ const PostCardStandard = ({ post, onLike, onDelete }) => {
                     <button
                       onClick={() => {
                         setShowMenu(false);
+                        setEditing(true);
+                      }}
+                      className="w-full flex items-center gap-2 px-4 py-2 text-sm text-cyan-400 hover:bg-cyan-400/10 transition-colors"
+                    >
+                      <RiEditLine />
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowMenu(false);
                         onDelete(post._id);
                       }}
                       className="w-full flex items-center gap-2 px-4 py-2 text-sm text-danger hover:bg-danger/10 transition-colors"
@@ -62,10 +101,38 @@ const PostCardStandard = ({ post, onLike, onDelete }) => {
           )}
         </div>
 
-        {/* Content */}
-        <p className="text-gray-200 text-sm sm:text-base leading-relaxed mb-4 whitespace-pre-wrap">
-          {post.text}
-        </p>
+        {/* Content — editable or static */}
+        {editing ? (
+          <div className="mb-4">
+            <textarea
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              className="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white text-sm resize-none focus:outline-none focus:border-electric/50 transition-colors min-h-[80px]"
+              maxLength={2000}
+              autoFocus
+            />
+            <div className="flex items-center gap-2 mt-2 justify-end">
+              <button
+                onClick={handleCancelEdit}
+                disabled={saving}
+                className="flex items-center gap-1 px-3 py-1.5 text-xs text-gray-400 hover:text-white bg-white/5 rounded-lg transition-colors"
+              >
+                <RiCloseLine size={14} /> Cancel
+              </button>
+              <button
+                onClick={handleSaveEdit}
+                disabled={saving || !editText.trim()}
+                className="flex items-center gap-1 px-3 py-1.5 text-xs text-white bg-electric hover:bg-electric/80 rounded-lg transition-colors disabled:opacity-50"
+              >
+                <RiCheckLine size={14} /> {saving ? 'Saving...' : 'Save'}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <p className="text-gray-200 text-sm sm:text-base leading-relaxed mb-4 whitespace-pre-wrap">
+            {post.text}
+          </p>
+        )}
 
         {/* Media */}
         {post.imageUrl && (
@@ -76,7 +143,6 @@ const PostCardStandard = ({ post, onLike, onDelete }) => {
               className="w-full max-h-[500px] object-cover bg-black/50"
               loading="lazy"
             />
-            {/* Inner shadow overlay */}
             <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-xl pointer-events-none"></div>
           </div>
         )}

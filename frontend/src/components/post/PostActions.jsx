@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { RiHeart3Line, RiHeart3Fill, RiChat3Line, RiShareForwardLine } from 'react-icons/ri';
+import { RiHeart3Line, RiHeart3Fill, RiChat3Line, RiShareForwardLine, RiBookmarkLine, RiBookmarkFill } from 'react-icons/ri';
 import CommentList from './CommentList';
+import { postsAPI } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import toast from 'react-hot-toast';
 
-const PostActions = ({ post, onLike }) => {
+const PostActions = ({ post, onLike, onSaveToggle }) => {
   const [showComments, setShowComments] = useState(false);
+  const [isSaved, setIsSaved] = useState(post.isSaved || false);
+  const [saving, setSaving] = useState(false);
   const { user } = useAuth();
-  const isLiking = false; // Add real loading state if needed
 
   const handleShare = () => {
     if (navigator.share) {
@@ -22,13 +24,28 @@ const PostActions = ({ post, onLike }) => {
     }
   };
 
+  const handleSave = async () => {
+    if (saving) return;
+    setSaving(true);
+    const prev = isSaved;
+    setIsSaved(!prev); // optimistic
+    try {
+      await postsAPI.toggleSave(post._id);
+      if (onSaveToggle) onSaveToggle(post._id, !prev);
+    } catch {
+      setIsSaved(prev); // revert
+      toast.error('Failed to save post');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className="mt-4">
       {/* Action Bar */}
       <div className="flex items-center gap-6">
         <button
           onClick={() => onLike(post._id)}
-          disabled={isLiking}
           className={`flex items-center gap-1.5 text-sm font-medium transition-colors group ${
             post.isLiked ? 'text-danger' : 'text-gray-400 hover:text-white'
           }`}
@@ -52,15 +69,30 @@ const PostActions = ({ post, onLike }) => {
           }`}>
             <RiChat3Line size={20} className={showComments ? 'drop-shadow-[0_0_8px_rgba(139,92,246,0.5)]' : ''} />
           </div>
-          <span>{post.comments?.length || 0}</span>
+          <span>{post.commentsCount || 0}</span>
         </button>
 
         <button
           onClick={handleShare}
-          className="flex items-center gap-1.5 text-sm font-medium text-gray-400 hover:text-white transition-colors group ml-auto"
+          className="flex items-center gap-1.5 text-sm font-medium text-gray-400 hover:text-white transition-colors group"
         >
           <div className="p-1.5 rounded-full group-hover:bg-white/5 transition-colors">
             <RiShareForwardLine size={20} />
+          </div>
+        </button>
+
+        {/* Bookmark */}
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className={`flex items-center gap-1.5 text-sm font-medium transition-colors group ml-auto ${
+            isSaved ? 'text-amber-400' : 'text-gray-400 hover:text-white'
+          }`}
+        >
+          <div className={`p-1.5 rounded-full transition-colors ${
+            isSaved ? 'bg-amber-400/10' : 'group-hover:bg-white/5'
+          }`}>
+            {isSaved ? <RiBookmarkFill size={20} className="drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" /> : <RiBookmarkLine size={20} />}
           </div>
         </button>
       </div>

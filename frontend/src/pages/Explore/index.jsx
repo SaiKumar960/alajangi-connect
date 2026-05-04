@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import TopNav from '../../components/layout/TopNav';
 import MobileNav from '../../components/layout/MobileNav';
 import SuggestedUsers from '../../components/user/SuggestedUsers';
 import Loader from '../../components/common/Loader';
+import Avatar from '../../components/common/Avatar';
+import PostCardCompact from '../../components/post/PostCardCompact';
 import FloatingComposer from '../../components/composer/FloatingComposer';
-import { RiSearchLine, RiFireLine, RiLineChartLine, RiCompass3Line } from 'react-icons/ri';
+import { RiSearchLine, RiCompass3Line } from 'react-icons/ri';
 import { userAPI, postsAPI } from '../../services/api';
 
 const Explore = () => {
@@ -16,14 +18,24 @@ const Explore = () => {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
-  const [trendingTopics, setTrendingTopics] = useState([
-    { tag: '#GlobalTech', growth: '+124%', posts: '2.4k' },
-    { tag: '#AlajangiConnect', growth: '+85%', posts: '1.2k' },
-    { tag: '#Web3', growth: '+64%', posts: '850' },
-    { tag: '#FuturisticDesign', growth: '+42%', posts: '620' },
-    { tag: '#SocialMedia', growth: '+31%', posts: '540' },
-  ]);
+  const [explorePosts, setExplorePosts] = useState([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
   const [isComposerOpen, setIsComposerOpen] = useState(false);
+
+  // Load explore posts on mount
+  useEffect(() => {
+    const fetchExplorePosts = async () => {
+      try {
+        const { data } = await postsAPI.getFeed(1, 12);
+        setExplorePosts(data.posts || []);
+      } catch (err) {
+        console.error('Failed to load explore posts', err);
+      } finally {
+        setLoadingPosts(false);
+      }
+    };
+    fetchExplorePosts();
+  }, []);
 
   useEffect(() => {
     if (initialQuery) {
@@ -45,6 +57,16 @@ const Explore = () => {
     } finally {
       setIsSearching(false);
     }
+  };
+
+  const handleLike = async (postId) => {
+    setExplorePosts(prev => prev.map(p => {
+      if (p._id !== postId) return p;
+      return { ...p, isLiked: !p.isLiked, likesCount: p.isLiked ? p.likesCount - 1 : p.likesCount + 1 };
+    }));
+    try {
+      await postsAPI.toggleLike(postId);
+    } catch { /* revert handled by optimistic UI */ }
   };
 
   return (
@@ -69,7 +91,7 @@ const Explore = () => {
               </span>
               <input 
                 type="text" 
-                placeholder="Search users or explore topics..." 
+                placeholder="Search users..." 
                 className="w-full bg-transparent border-none text-white px-4 py-4 focus:outline-none placeholder-gray-500"
                 value={searchQuery}
                 onChange={(e) => {
@@ -84,7 +106,7 @@ const Explore = () => {
         {/* Content Sections */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           
-          {/* Left/Main Column: Results or Trending */}
+          {/* Left/Main Column */}
           <div className="md:col-span-2 space-y-8">
             
             {searchQuery ? (
@@ -102,19 +124,19 @@ const Explore = () => {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 gap-4">
-                    {searchResults.map(user => (
-                      <div key={user._id} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-electric/30 transition-all group">
+                    {searchResults.map(u => (
+                      <Link key={u._id} to={`/profile/${u._id}`} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:border-electric/30 transition-all group">
                         <div className="flex items-center gap-4">
-                          <img src={user.avatar || '/default-avatar.png'} alt={user.name} className="w-12 h-12 rounded-full border border-white/10" />
+                          <Avatar src={u.avatar} name={u.name} size="md" />
                           <div>
-                            <h3 className="font-semibold text-white group-hover:text-electric transition-colors">{user.name}</h3>
-                            <p className="text-xs text-gray-500 truncate max-w-[150px] sm:max-w-xs">{user.bio || 'Network node active'}</p>
+                            <h3 className="font-semibold text-white group-hover:text-electric transition-colors">{u.name}</h3>
+                            <p className="text-xs text-gray-500 truncate max-w-[150px] sm:max-w-xs">{u.bio || 'Alajangi member'}</p>
                           </div>
                         </div>
-                        <button className="px-4 py-1.5 text-xs font-bold bg-white/5 hover:bg-electric text-white rounded-full border border-white/10 hover:border-electric transition-all">
-                          View Node
-                        </button>
-                      </div>
+                        <span className="px-4 py-1.5 text-xs font-bold bg-white/5 text-gray-300 rounded-full border border-white/10 group-hover:border-electric group-hover:text-electric transition-all">
+                          View
+                        </span>
+                      </Link>
                     ))}
                   </div>
                 )}
@@ -122,40 +144,22 @@ const Explore = () => {
             ) : (
               <section className="glass-panel rounded-3xl p-6 border border-white/5">
                 <h2 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                  <RiFireLine className="text-danger" />
-                  Trending Topics
+                  <RiCompass3Line className="text-electric" />
+                  Discover
                 </h2>
-                <div className="space-y-4">
-                  {trendingTopics.map((topic, i) => (
-                    <div key={topic.tag} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 transition-all cursor-pointer group">
-                      <div>
-                        <span className="text-sm font-bold text-white group-hover:text-cyan-400 transition-colors">{topic.tag}</span>
-                        <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-1">{topic.posts} Posts shared</p>
-                      </div>
-                      <div className="text-right">
-                        <span className="text-xs font-mono text-green-400 flex items-center gap-1 justify-end">
-                          <RiLineChartLine />
-                          {topic.growth}
-                        </span>
-                        <p className="text-[10px] text-gray-600 uppercase mt-1 font-mono">Growth Index</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* Explore Feed Grid (Placeholder for more dynamic content) */}
-            {!searchQuery && (
-              <section className="glass-panel rounded-3xl p-6 border border-white/5">
-                <h2 className="text-lg font-bold text-white mb-6">Discover New Content</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  {[1, 2, 3, 4].map(i => (
-                    <div key={i} className="aspect-square bg-white/5 rounded-2xl animate-pulse flex items-center justify-center border border-white/5">
-                      <RiCompass3Line size={32} className="text-gray-700" />
-                    </div>
-                  ))}
-                </div>
+                {loadingPosts ? (
+                  <Loader inline text="Loading posts..." />
+                ) : explorePosts.length === 0 ? (
+                  <div className="py-12 text-center text-gray-500 font-mono text-sm uppercase tracking-widest">
+                    No posts to explore yet
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    {explorePosts.map(post => (
+                      <PostCardCompact key={post._id} post={post} onLike={handleLike} onDelete={() => {}} />
+                    ))}
+                  </div>
+                )}
               </section>
             )}
           </div>

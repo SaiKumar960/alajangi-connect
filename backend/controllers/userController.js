@@ -188,4 +188,49 @@ const updateProfile = async (req, res, next) => {
   }
 };
 
-module.exports = { getUserProfile, getUserPosts, updateProfile, toggleFollow, searchUsers, getSuggestedUsers };
+/**
+ * @desc    Get current user's saved/bookmarked posts
+ * @route   GET /api/users/me/saved
+ * @access  Private
+ */
+const getSavedPosts = async (req, res, next) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(30, parseInt(req.query.limit) || 12);
+    const skip = (page - 1) * limit;
+
+    const user = await User.findById(req.user._id).select('savedPosts');
+    const savedIds = user.savedPosts || [];
+    const total = savedIds.length;
+
+    // Get paginated saved posts (newest saved first → reverse the array)
+    const paginatedIds = [...savedIds].reverse().slice(skip, skip + limit);
+
+    const posts = await Post.find({ _id: { $in: paginatedIds } })
+      .populate('author', 'name avatar');
+
+    // Preserve saved order
+    const idOrder = paginatedIds.map((id) => id.toString());
+    const sorted = posts.sort(
+      (a, b) => idOrder.indexOf(a._id.toString()) - idOrder.indexOf(b._id.toString())
+    );
+
+    const userId = req.user._id.toString();
+    const enriched = sorted.map((p) => ({
+      ...p.toObject(),
+      isLiked: p.likes.some((id) => id.toString() === userId),
+      likesCount: p.likes.length,
+      isSaved: true,
+    }));
+
+    res.status(200).json({
+      success: true,
+      posts: enriched,
+      pagination: { page, limit, total, hasMore: skip + limit < total },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { getUserProfile, getUserPosts, updateProfile, toggleFollow, searchUsers, getSuggestedUsers, getSavedPosts };

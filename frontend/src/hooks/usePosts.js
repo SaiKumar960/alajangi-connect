@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
  * Manages paginated feed state.
  * Returns posts[], loading, hasMore, loadMore(), refresh(), toggleLike()
  */
-const usePosts = () => {
+const usePosts = (filter = '') => {
   const [posts, setPosts] = useState([]);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -21,7 +21,7 @@ const usePosts = () => {
 
     setLoading(true);
     try {
-      const { data } = await postsAPI.getFeed(pageNum);
+      const { data } = await postsAPI.getFeed(pageNum, 10, filter);
       const newPosts = data.posts || [];
       setPosts((prev) => (pageNum === 1 ? newPosts : [...prev, ...newPosts]));
       setHasMore(data.pagination?.hasMore ?? false);
@@ -33,7 +33,7 @@ const usePosts = () => {
       setLoading(false);
       setInitialLoad(false);
     }
-  }, [loading]);
+  }, [loading, filter]);
 
   const refresh = useCallback(() => {
     fetchedPages.current.clear();
@@ -84,6 +84,12 @@ const usePosts = () => {
     setPosts((prev) => prev.filter((p) => p._id !== postId));
   }, []);
 
+  const editPost = useCallback((postId, updatedPost) => {
+    setPosts((prev) =>
+      prev.map((p) => (p._id === postId ? { ...p, ...updatedPost } : p))
+    );
+  }, []);
+
   return {
     posts,
     loading,
@@ -95,6 +101,7 @@ const usePosts = () => {
     toggleLike,
     addPostToFeed,
     removePost,
+    editPost,
   };
 };
 

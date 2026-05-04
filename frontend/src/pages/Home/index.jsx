@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import usePosts from '../../hooks/usePosts';
 import useInfiniteScroll from '../../hooks/useInfiniteScroll';
@@ -9,25 +9,31 @@ import AIInsightsPanel from '../../components/insights/AIInsightsPanel';
 import FloatingComposer from '../../components/composer/FloatingComposer';
 import Loader from '../../components/common/Loader';
 import SuggestedUsers from '../../components/user/SuggestedUsers';
-import { RiAddLine } from 'react-icons/ri';
+import { RiAddLine, RiGlobalLine, RiUserHeartLine } from 'react-icons/ri';
 
 const Home = () => {
   const { user } = useAuth();
-  const {
-    posts, loading, hasMore, initialLoad, page,
-    loadMore, addPostToFeed, toggleLike, removePost,
-  } = usePosts();
-
+  const [feedFilter, setFeedFilter] = useState(''); // '' = For You, 'following' = Following
   const [isComposerOpen, setIsComposerOpen] = useState(false);
 
-  // Initial load
-  useEffect(() => { loadMore(1); }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  const {
+    posts, loading, hasMore, initialLoad, page,
+    loadMore, addPostToFeed, toggleLike, removePost, editPost,
+  } = usePosts(feedFilter);
+
+  // Load feed when filter changes
+  useEffect(() => { loadMore(1); }, [feedFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Infinite scroll sentinel
   const sentinelRef = useInfiniteScroll(
     () => { if (hasMore && !loading) loadMore(page); },
     hasMore && !initialLoad
   );
+
+  const handleFilterChange = useCallback((filter) => {
+    if (filter === feedFilter) return;
+    setFeedFilter(filter);
+  }, [feedFilter]);
 
   return (
     <div className="min-h-screen bg-void flex flex-col">
@@ -50,6 +56,32 @@ const Home = () => {
             <SuggestedUsers layout="horizontal" />
           </div>
 
+          {/* Feed Filter Tabs */}
+          <div className="flex items-center gap-1 mb-6 p-1 bg-white/5 rounded-2xl border border-white/5">
+            <button
+              onClick={() => handleFilterChange('')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all ${
+                feedFilter === ''
+                  ? 'bg-electric/20 text-electric border border-electric/30 shadow-[0_0_12px_rgba(139,92,246,0.15)]'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <RiGlobalLine size={16} />
+              For You
+            </button>
+            <button
+              onClick={() => handleFilterChange('following')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-sm font-medium transition-all ${
+                feedFilter === 'following'
+                  ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 shadow-[0_0_12px_rgba(6,182,212,0.15)]'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
+              }`}
+            >
+              <RiUserHeartLine size={16} />
+              Following
+            </button>
+          </div>
+
           {/* Dynamic Feed Content */}
           {initialLoad ? (
             <Loader text="Loading your feed..." />
@@ -58,21 +90,30 @@ const Home = () => {
               <div className="w-20 h-20 bg-electric/10 rounded-full flex items-center justify-center mb-6 text-electric">
                 <RiAddLine size={40} className="animate-pulse" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">No posts yet</h3>
-              <p className="text-gray-400 max-w-xs mx-auto">Be the first to share something with the community.</p>
-              <button 
-                onClick={() => setIsComposerOpen(true)}
-                className="mt-6 px-8 py-3 bg-electric text-white rounded-full font-medium hover:shadow-[0_0_20px_rgba(139,92,246,0.5)] transition-all"
-              >
-                Create Post
-              </button>
+              <h3 className="text-xl font-bold text-white mb-2">
+                {feedFilter === 'following' ? 'No posts from people you follow' : 'No posts yet'}
+              </h3>
+              <p className="text-gray-400 max-w-xs mx-auto">
+                {feedFilter === 'following'
+                  ? 'Follow some users to see their posts here.'
+                  : 'Be the first to share something with the community.'}
+              </p>
+              {feedFilter !== 'following' && (
+                <button 
+                  onClick={() => setIsComposerOpen(true)}
+                  className="mt-6 px-8 py-3 bg-electric text-white rounded-full font-medium hover:shadow-[0_0_20px_rgba(139,92,246,0.5)] transition-all"
+                >
+                  Create Post
+                </button>
+              )}
             </div>
           ) : (
             <>
               <DynamicFeed 
                 posts={posts} 
                 onLike={toggleLike} 
-                onDelete={removePost} 
+                onDelete={removePost}
+                onEdit={editPost}
               />
 
               {/* Infinite scroll sentinel */}
