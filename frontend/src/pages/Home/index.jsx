@@ -46,25 +46,25 @@ const Home = () => {
           
           {/* Mobile Suggested Users */}
           <div className="lg:hidden mb-8">
-            <h2 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 px-1">Network Recommendations</h2>
+            <h2 className="text-sm font-bold text-gray-500 uppercase tracking-widest mb-4 px-1">Suggested Users</h2>
             <SuggestedUsers layout="horizontal" />
           </div>
 
           {/* Dynamic Feed Content */}
           {initialLoad ? (
-            <Loader text="Syncing with the neural network..." />
+            <Loader text="Loading your feed..." />
           ) : posts.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center glass-panel rounded-3xl border border-white/5">
               <div className="w-20 h-20 bg-electric/10 rounded-full flex items-center justify-center mb-6 text-electric">
                 <RiAddLine size={40} className="animate-pulse" />
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">The network is quiet</h3>
-              <p className="text-gray-400 max-w-xs mx-auto">Be the first to transmit a thought into the void.</p>
+              <h3 className="text-xl font-bold text-white mb-2">No posts yet</h3>
+              <p className="text-gray-400 max-w-xs mx-auto">Be the first to share something with the community.</p>
               <button 
                 onClick={() => setIsComposerOpen(true)}
                 className="mt-6 px-8 py-3 bg-electric text-white rounded-full font-medium hover:shadow-[0_0_20px_rgba(139,92,246,0.5)] transition-all"
               >
-                Start Transmission
+                Create Post
               </button>
             </div>
           ) : (
@@ -78,11 +78,11 @@ const Home = () => {
               {/* Infinite scroll sentinel */}
               <div ref={sentinelRef} className="h-20 flex items-center justify-center">
                 {loading && !initialLoad && (
-                  <Loader inline text="Fetching more frequencies..." />
+                  <Loader inline text="Loading more posts..." />
                 )}
                 {!hasMore && posts.length > 0 && (
                   <div className="py-10 text-center">
-                    <span className="text-xs font-mono text-gray-600 tracking-[0.3em] uppercase">End of transmission</span>
+                    <span className="text-xs font-mono text-gray-600 tracking-[0.3em] uppercase">No more posts</span>
                   </div>
                 )}
               </div>

@@ -33,7 +33,7 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      return toast.error('Access codes do not match');
+      return toast.error('Passwords do not match');
     }
 
     setLoading(true);
@@ -46,10 +46,10 @@ const Register = () => {
 
       const response = await authAPI.register(data);
       login(response.data.user, response.data.token);
-      toast.success(`Protocol initiated: Welcome ${response.data.user.name}`);
+      toast.success(`Welcome to Alajangi Connect, ${response.data.user.name}`);
       navigate('/');
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message || 'Node creation failed');
+      toast.error(err.response?.data?.message || err.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -67,8 +67,8 @@ const Register = () => {
         <div className="glass-panel glow-border-intense rounded-[32px] p-8 sm:p-10">
           
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white tracking-tight glow-text mb-2">Request Protocol</h1>
-            <p className="text-gray-400">Generate a new node in the Alajangi network</p>
+            <h1 className="text-3xl font-bold text-white tracking-tight glow-text mb-2">Create Account</h1>
+            <p className="text-gray-400">Join the Alajangi Connect community</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -90,22 +90,22 @@ const Register = () => {
                   </label>
                 </div>
               </div>
-              <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-3 font-mono">Select Avatar Matrix</p>
+              <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-3 font-mono">Profile Picture</p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Input
                 label="Full Name"
-                placeholder="User-ID"
+                placeholder="Enter your name"
                 icon={RiUser3Line}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
               />
               <Input
-                label="Neural ID (Email)"
+                label="Email Address"
                 type="email"
-                placeholder="node@network.com"
+                placeholder="name@email.com"
                 icon={RiMailLine}
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -115,7 +115,7 @@ const Register = () => {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Input
-                label="Access Code"
+                label="Password"
                 type="password"
                 placeholder="••••••••"
                 icon={RiLockPasswordLine}
@@ -124,7 +124,7 @@ const Register = () => {
                 required
               />
               <Input
-                label="Confirm Code"
+                label="Confirm Password"
                 type="password"
                 placeholder="••••••••"
                 icon={RiLockPasswordLine}
@@ -141,14 +141,14 @@ const Register = () => {
                 size="lg" 
                 loading={loading}
               >
-                Initiate Creation
+                Create Account
               </GlowButton>
             </div>
           </form>
 
           <div className="mt-8 text-center">
             <p className="text-gray-500 text-sm">
-              Already have a node ID?{' '}
+              Already have an account?{' '}
               <Link to="/login" className="text-cyan-400 hover:text-electric font-semibold transition-colors">
                 Sign In
               </Link>

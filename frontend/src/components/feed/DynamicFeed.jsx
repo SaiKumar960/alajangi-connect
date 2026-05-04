@@ -19,9 +19,9 @@ const DynamicFeed = ({ posts, onLike, onDelete }) => {
 
   return (
     <div className="w-full">
-      {/* 1. Trending in Your Circle */}
+      {/* 1. Trending Now */}
       {trendingPosts.length > 0 && (
-        <FeedSection title="Trending in Your Circle" icon={RiFireLine} layout="spotlight">
+        <FeedSection title="Trending Now" icon={RiFireLine} layout="spotlight">
           {trendingPosts[0] && (
             <PostCardHighlight post={trendingPosts[0]} onLike={onLike} onDelete={onDelete} />
           )}
@@ -31,18 +31,18 @@ const DynamicFeed = ({ posts, onLike, onDelete }) => {
         </FeedSection>
       )}
 
-      {/* 2. AI Recommends */}
+      {/* 2. Recommended for You */}
       {aiRecommendsPosts.length > 0 && (
-        <FeedSection title="AI Recommends" icon={RiRobot2Line} layout="list">
+        <FeedSection title="Recommended for You" icon={RiRobot2Line} layout="list">
           {aiRecommendsPosts.map(post => (
             <PostCardStandard key={post._id} post={post} onLike={onLike} onDelete={onDelete} />
           ))}
         </FeedSection>
       )}
 
-      {/* 3. Fresh Voices */}
+      {/* 3. Recent Posts */}
       {freshVoicesPosts.length > 0 && (
-        <FeedSection title="Fresh Voices" icon={RiVoiceprintLine} layout="masonry">
+        <FeedSection title="Recent Posts" icon={RiVoiceprintLine} layout="masonry">
           {freshVoicesPosts.map(post => (
             <PostCardCompact key={post._id} post={post} onLike={onLike} onDelete={onDelete} />
           ))}

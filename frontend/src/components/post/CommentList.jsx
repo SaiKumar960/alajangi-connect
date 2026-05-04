@@ -68,7 +68,7 @@ const CommentList = ({ postId }) => {
             <div className="absolute -inset-0.5 bg-electric/20 rounded-xl blur opacity-0 group-focus-within:opacity-100 transition duration-300"></div>
             <textarea
               className="relative w-full bg-void/50 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-electric/50 resize-none placeholder-gray-600"
-              placeholder="Transmit your response..."
+              placeholder="Add a comment..."
               rows={2}
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -94,7 +94,7 @@ const CommentList = ({ postId }) => {
         {loading && comments.length === 0 ? (
           <Loader inline />
         ) : comments.length === 0 ? (
-          <p className="text-center py-4 text-xs font-mono text-gray-600 uppercase tracking-widest">Zero responses found</p>
+          <p className="text-center py-4 text-xs font-mono text-gray-600 uppercase tracking-widest">No comments yet</p>
         ) : (
           <div className="flex flex-col gap-4">
             {comments.map((comment) => (
@@ -110,7 +110,7 @@ const CommentList = ({ postId }) => {
                 onClick={() => fetchComments(page + 1)}
                 disabled={loading}
               >
-                {loading ? 'Decrypting...' : 'Load more frequencies'}
+                {loading ? 'Loading...' : 'Load more comments'}
               </button>
             )}
           </div>

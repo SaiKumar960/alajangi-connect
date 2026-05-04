@@ -8,9 +8,11 @@ const connectDB = async () => {
       socketTimeoutMS: 45000,
     });
     console.log(`✅ MongoDB connected: ${conn.connection.host}`);
+    global.dbConnected = true;
   } catch (error) {
     console.error(`❌ MongoDB connection error: ${error.message}`);
-    process.exit(1);
+    console.log('⚠️ Running in MOCK MODE: Data will not persist.');
+    global.dbConnected = false;
   }
 };
 

@@ -5,6 +5,7 @@ import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Register from '../pages/Register';
 import Profile from '../pages/Profile';
+import Explore from '../pages/Explore';
 import Loader from '../components/common/Loader';
 
 // Redirects unauthenticated users to /login
@@ -52,6 +53,14 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <AnimatedPage><Profile /></AnimatedPage>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/explore"
+          element={
+            <ProtectedRoute>
+              <AnimatedPage><Explore /></AnimatedPage>
             </ProtectedRoute>
           }
         />

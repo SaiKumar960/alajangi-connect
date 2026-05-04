@@ -10,7 +10,7 @@ import GlowButton from '../../components/common/GlowButton';
 import PostCardStandard from '../../components/post/PostCardStandard';
 import PostCardCompact from '../../components/post/PostCardCompact';
 import FloatingComposer from '../../components/composer/FloatingComposer';
-import { RiEditLine, RiUserAddLine, RiUserFollowLine, RiMapPinLine, RiCalendarLine, RiActivityLine } from 'react-icons/ri';
+import { RiEditLine, RiUserAddLine, RiUserFollowLine, RiMapPinLine, RiCalendarLine, RiPulseLine } from 'react-icons/ri';
 import toast from 'react-hot-toast';
 
 const Profile = () => {
@@ -50,7 +50,7 @@ const Profile = () => {
     try {
       await userAPI.followUser(id);
       setIsFollowing(!isFollowing);
-      toast.success(isFollowing ? 'Connection severed' : 'Neural link established');
+      toast.success(isFollowing ? 'Unfollowed successfully' : 'Followed successfully');
     } catch (err) {
       toast.error('Operation failed');
     }
@@ -67,9 +67,9 @@ const Profile = () => {
       const { data } = await userAPI.updateProfile(formData);
       setUser(prev => ({ ...prev, avatar: data.user.avatar }));
       if (isOwnProfile) updateUser({ avatar: data.user.avatar });
-      toast.success('Avatar matrix updated');
+      toast.success('Profile picture updated');
     } catch (err) {
-      toast.error('Transmission error');
+      toast.error('Failed to update avatar');
     }
   };
 
@@ -86,8 +86,8 @@ const Profile = () => {
     }
   };
 
-  if (loading) return <Loader fullPage text="Decrypting User Node..." />;
-  if (!user) return <div className="min-h-screen bg-void flex items-center justify-center text-white">Node not found in the system.</div>;
+  if (loading) return <Loader fullPage text="Loading profile..." />;
+  if (!user) return <div className="min-h-screen bg-void flex items-center justify-center text-white">User not found.</div>;
 
   return (
     <div className="min-h-screen bg-void flex flex-col">
@@ -121,12 +121,12 @@ const Profile = () => {
 
               <div className="flex-1">
                 <h1 className="text-3xl font-bold text-white mb-1 glow-text">{user.name}</h1>
-                <p className="text-electric font-mono text-sm tracking-widest mb-4">NODE-ID: {user._id.slice(-8).toUpperCase()}</p>
+                <p className="text-electric font-mono text-sm tracking-widest mb-4">ID: {user._id.slice(-8).toUpperCase()}</p>
                 
                 <div className="flex flex-wrap gap-4 text-sm text-gray-400 font-medium">
                   <div className="flex items-center gap-1.5">
                     <RiMapPinLine className="text-cyan-400" />
-                    <span>Neural Network</span>
+                    <span>Global Network</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <RiCalendarLine className="text-electric" />
@@ -139,12 +139,12 @@ const Profile = () => {
                 {isOwnProfile ? (
                   <GlowButton variant="secondary" onClick={() => setEditMode(!editMode)}>
                     <RiEditLine />
-                    Edit Node
+                    Edit Profile
                   </GlowButton>
                 ) : (
                   <GlowButton variant={isFollowing ? 'secondary' : 'primary'} onClick={handleFollow}>
                     {isFollowing ? <RiUserFollowLine /> : <RiUserAddLine />}
-                    {isFollowing ? 'Linked' : 'Sync Link'}
+                    {isFollowing ? 'Following' : 'Follow'}
                   </GlowButton>
                 )}
               </div>
@@ -154,15 +154,15 @@ const Profile = () => {
             <div className="flex gap-8 mt-8 py-4 border-t border-white/5">
               <div className="flex flex-col">
                 <span className="text-2xl font-bold text-white">{posts.length}</span>
-                <span className="text-[10px] text-gray-500 uppercase tracking-widest">Transmissions</span>
+                <span className="text-[10px] text-gray-500 uppercase tracking-widest">Posts</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-2xl font-bold text-white">{user.followers?.length || 0}</span>
-                <span className="text-[10px] text-gray-500 uppercase tracking-widest">Neural Links</span>
+                <span className="text-[10px] text-gray-500 uppercase tracking-widest">Followers</span>
               </div>
               <div className="flex flex-col">
                 <span className="text-2xl font-bold text-white">{user.following?.length || 0}</span>
-                <span className="text-[10px] text-gray-500 uppercase tracking-widest">Synchronizing</span>
+                <span className="text-[10px] text-gray-500 uppercase tracking-widest">Following</span>
               </div>
             </div>
           </div>
@@ -171,7 +171,7 @@ const Profile = () => {
         {/* Content Tabs */}
         <div className="flex items-center gap-6 mb-6 px-2 border-b border-white/5">
           <button className="pb-3 border-b-2 border-electric text-white font-medium text-sm flex items-center gap-2">
-            <RiActivityLine />
+            <RiPulseLine />
             Recent Activity
           </button>
         </div>
@@ -180,7 +180,7 @@ const Profile = () => {
         <div className="flex flex-col gap-4">
           {posts.length === 0 ? (
             <div className="text-center py-20 text-gray-500 font-mono text-sm">
-              NO RECENT TRANSMISSIONS FOUND
+              NO POSTS FOUND
             </div>
           ) : (
             posts.map((post, i) => (

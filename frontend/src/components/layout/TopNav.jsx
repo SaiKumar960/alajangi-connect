@@ -10,9 +10,18 @@ const TopNav = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
 
+  const [searchQuery, setSearchQuery] = useState('');
+
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleSearch = (e) => {
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      navigate(`/explore?q=${encodeURIComponent(searchQuery.trim())}`);
+      setIsSearchOpen(false);
+    }
   };
 
   return (
@@ -40,8 +49,11 @@ const TopNav = () => {
               <span className="pl-4 text-gray-400"><RiSearchLine size={18} /></span>
               <input 
                 type="text" 
-                placeholder="Ask AI or search topics..." 
+                placeholder="Search Alajangi Connect..." 
                 className="w-full bg-transparent border-none text-sm text-white px-3 py-2.5 focus:outline-none placeholder-gray-500"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleSearch}
               />
               <div className="pr-2 hidden lg:flex items-center gap-1">
                 <kbd className="hidden sm:inline-block px-1.5 py-0.5 text-[10px] font-medium text-gray-400 bg-white/5 border border-white/10 rounded">⌘</kbd>
@@ -120,9 +132,12 @@ const TopNav = () => {
             <span className="pl-4 text-electric"><RiSearchLine size={18} /></span>
             <input 
               type="text" 
-              placeholder="Ask AI or search..." 
+              placeholder="Search..." 
               autoFocus
               className="w-full bg-transparent border-none text-sm text-white px-3 py-2 focus:outline-none"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              onKeyDown={handleSearch}
             />
           </div>
         </div>

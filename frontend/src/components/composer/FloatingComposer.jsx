@@ -55,10 +55,10 @@ const FloatingComposer = ({ onPostCreated, isOpen, onClose }) => {
       // Reset & close
       setText('');
       clearImage();
-      toast.success('Thought transmitted to the network');
+      toast.success('Post shared successfully');
       onClose();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Transmission failed');
+      toast.error(err.response?.data?.message || 'Failed to post');
     } finally {
       setSubmitting(false);
     }
@@ -93,7 +93,7 @@ const FloatingComposer = ({ onPostCreated, isOpen, onClose }) => {
               <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-white/5">
                 <div className="flex items-center gap-2 text-electric font-medium">
                   <RiSparklingLine size={20} />
-                  <span>Compose Thought</span>
+                  <span>Create Post</span>
                 </div>
                 <button 
                   onClick={onClose}
@@ -111,7 +111,7 @@ const FloatingComposer = ({ onPostCreated, isOpen, onClose }) => {
                     <textarea
                       ref={textareaRef}
                       className="w-full bg-transparent border-none text-white text-lg resize-none focus:ring-0 p-0 placeholder-gray-500 min-h-[120px]"
-                      placeholder="What's transmitting in your network?"
+                      placeholder="What's on your mind?"
                       value={text}
                       onChange={(e) => setText(e.target.value)}
                       maxLength={charLimit}
@@ -153,7 +153,7 @@ const FloatingComposer = ({ onPostCreated, isOpen, onClose }) => {
                     className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors px-3 py-1.5 rounded-full hover:bg-cyan-400/10"
                   >
                     <RiImageLine size={20} />
-                    <span className="text-sm font-medium">Attach Data</span>
+                    <span className="text-sm font-medium">Add Photo</span>
                   </button>
                 </div>
 
@@ -176,7 +176,7 @@ const FloatingComposer = ({ onPostCreated, isOpen, onClose }) => {
                       ) : (
                         <>
                           <RiSendPlaneFill />
-                          <span>Transmit</span>
+                          <span>Post</span>
                         </>
                       )}
                     </div>

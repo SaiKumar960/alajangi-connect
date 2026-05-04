@@ -16,7 +16,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) return toast.error('Identification required');
+    if (!email || !password) return toast.error('Email and password required');
 
     setLoading(true);
     try {
@@ -25,7 +25,7 @@ const Login = () => {
       toast.success(`Welcome back, ${data.user.name}`);
       navigate('/');
     } catch (err) {
-      toast.error(err.response?.data?.message || err.message || 'System rejection: Access denied');
+      toast.error(err.response?.data?.message || err.message || 'Login failed: Access denied');
     } finally {
       setLoading(false);
     }
@@ -47,15 +47,15 @@ const Login = () => {
               <div className="absolute inset-0 bg-electric/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <img src="/logo.png" alt="Alajangi Logo" className="w-16 h-16 relative z-10 drop-shadow-[0_0_15px_rgba(139,92,246,0.5)]" />
             </div>
-            <h1 className="text-3xl font-bold text-white tracking-tight glow-text mb-2">Initialize Session</h1>
-            <p className="text-gray-400">Connect your consciousness to the network</p>
+            <h1 className="text-3xl font-bold text-white tracking-tight glow-text mb-2">Sign In</h1>
+            <p className="text-gray-400">Welcome back to Alajangi Connect</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <Input
-              label="Neural ID (Email)"
+              label="Email Address"
               type="email"
-              placeholder="id@network.com"
+              placeholder="name@email.com"
               icon={RiMailLine}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -63,7 +63,7 @@ const Login = () => {
             />
 
             <Input
-              label="Access Code"
+              label="Password"
               type="password"
               placeholder="••••••••"
               icon={RiLockPasswordLine}
@@ -79,16 +79,16 @@ const Login = () => {
                 size="lg" 
                 loading={loading}
               >
-                Sync with Network
+                Sign In
               </GlowButton>
             </div>
           </form>
 
           <div className="mt-10 text-center">
             <p className="text-gray-500 text-sm">
-              New node in the system?{' '}
+              New to Alajangi?{' '}
               <Link to="/register" className="text-electric hover:text-cyan-400 font-semibold transition-colors">
-                Request Protocol 
+                Create Account
               </Link>
             </p>
           </div>
@@ -100,7 +100,7 @@ const Login = () => {
           <span className="w-1 h-1 bg-gray-700 rounded-full"></span>
           <span>Secure Layer Active</span>
           <span className="w-1 h-1 bg-gray-700 rounded-full"></span>
-          <span>Node-2965</span>
+          <span>v1.0.0</span>
         </div>
       </div>
     </div>

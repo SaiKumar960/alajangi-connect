@@ -25,7 +25,7 @@ const Loader = ({ fullPage = false, inline = false, text = '' }) => {
           <img src="/logo.png" alt="Loading" className="w-16 h-16 object-contain animate-pulse" />
         </div>
         <p className="mt-12 text-gray-400 font-mono text-sm tracking-widest uppercase animate-pulse">
-          {text || 'Initializing System'}
+          {text || 'Loading...'}
         </p>
       </div>
     );

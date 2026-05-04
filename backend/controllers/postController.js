@@ -10,6 +10,21 @@ const { cloudinary } = require('../config/cloudinary');
 const createPost = async (req, res, next) => {
   try {
     const { text } = req.body;
+
+    if (!global.dbConnected) {
+      const mockPost = {
+        _id: 'mock_post_' + Date.now(),
+        author: { _id: req.user._id, name: req.user.name, avatar: req.user.avatar },
+        text,
+        imageUrl: req.file ? 'https://picsum.photos/800/600' : undefined,
+        likes: [],
+        likesCount: 0,
+        isLiked: false,
+        createdAt: new Date(),
+      };
+      return res.status(201).json({ success: true, post: mockPost });
+    }
+
     const postData = { author: req.user._id, text };
 
     // If a file was uploaded, store the Cloudinary URL
@@ -36,6 +51,36 @@ const getFeed = async (req, res, next) => {
   try {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(50, parseInt(req.query.limit) || 10);
+
+    if (!global.dbConnected) {
+      const mockPosts = Array.from({ length: limit }).map((_, i) => ({
+        _id: `mock_p_${page}_${i}`,
+        author: { 
+          _id: `mock_u_${i}`, 
+          name: ['Alex Rivera', 'Sam Chen', 'Jordan Smith', 'Taylor Swift'][i % 4],
+          avatar: `https://i.pravatar.cc/150?u=${i}`
+        },
+        text: `This is a futuristic post about ${['AI', 'Cyberpunk', 'React', 'The Void'][i % 4]}. (Mock Data)`,
+        imageUrl: i % 3 === 0 ? `https://picsum.photos/800/600?random=${i}` : undefined,
+        likes: [],
+        likesCount: Math.floor(Math.random() * 100),
+        isLiked: false,
+        createdAt: new Date(Date.now() - i * 3600000),
+      }));
+
+      return res.status(200).json({
+        success: true,
+        posts: mockPosts,
+        pagination: {
+          page,
+          limit,
+          total: 100,
+          totalPages: 10,
+          hasMore: page < 10,
+        },
+      });
+    }
+
     const skip = (page - 1) * limit;
 
     const [posts, total] = await Promise.all([

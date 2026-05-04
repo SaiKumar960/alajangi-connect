@@ -25,11 +25,11 @@ const AIInsightsPanel = () => {
         
         <div className="flex items-center gap-2 mb-4 relative z-10">
           <RiLightbulbLine className="text-cyan-400" size={20} />
-          <h3 className="font-semibold text-white">Network Sync</h3>
+          <h3 className="font-semibold text-white">Who to follow</h3>
         </div>
         
         <p className="text-xs text-gray-400 mb-4 relative z-10">
-          AI matched these profiles based on your recent neural activity.
+          Suggested profiles based on your interests.
         </p>
 
         <div className="relative z-10">
@@ -45,7 +45,7 @@ const AIInsightsPanel = () => {
 
         <div className="flex items-center gap-2 mb-4 relative z-10">
           <RiRadarLine className="text-electric" size={20} />
-          <h3 className="font-semibold text-white">Trending Frequencies</h3>
+          <h3 className="font-semibold text-white">Trending Topics</h3>
         </div>
 
         <div className="flex flex-col gap-3 relative z-10">
@@ -73,7 +73,7 @@ const AIInsightsPanel = () => {
       {/* Footer info */}
       <div className="text-xs text-gray-500 text-center mt-2 font-mono flex items-center justify-center gap-2">
         <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse"></span>
-        Alajangi AI Core Online
+        Alajangi Network Online
       </div>
       <p className="text-[10px] text-gray-600 text-center">
         © 2026 Alajangi Connect. All rights reserved.
