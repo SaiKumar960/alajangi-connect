@@ -8,7 +8,7 @@ import { RiMailLine, RiLockPasswordLine, RiUser3Line } from 'react-icons/ri';
 import toast from 'react-hot-toast';
 
 const Login = () => {
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -16,11 +16,11 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) return toast.error('Email and password required');
+    if (!identifier || !password) return toast.error('Email/Phone and password required');
 
     setLoading(true);
     try {
-      const { data } = await authAPI.login({ email, password });
+      const { data } = await authAPI.login({ identifier, password });
       login(data.user, data.token);
       toast.success(`Welcome back, ${data.user.name}`);
       navigate('/');
@@ -53,12 +53,12 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <Input
-              label="Email Address"
-              type="email"
-              placeholder="name@email.com"
+              label="Email or Phone Number"
+              type="text"
+              placeholder="name@email.com or +1234567890"
               icon={RiMailLine}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={identifier}
+              onChange={(e) => setIdentifier(e.target.value)}
               required
             />
 

@@ -11,13 +11,16 @@ import toast from 'react-hot-toast';
 const Register = () => {
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    identifier: '',
     password: '',
     confirmPassword: '',
+    otp: '',
   });
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [sendingOtp, setSendingOtp] = useState(false);
   
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -30,8 +33,23 @@ const Register = () => {
     }
   };
 
+  const handleSendOtp = async () => {
+    if (!formData.identifier) return toast.error('Please enter an email or phone number');
+    setSendingOtp(true);
+    try {
+      await authAPI.sendOtp({ identifier: formData.identifier });
+      setOtpSent(true);
+      toast.success('OTP sent! Check your console for the code.');
+    } catch (err) {
+      toast.error(err.response?.data?.message || err.message || 'Failed to send OTP');
+    } finally {
+      setSendingOtp(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!otpSent) return toast.error('Please verify your email/phone with OTP first');
     if (formData.password !== formData.confirmPassword) {
       return toast.error('Passwords do not match');
     }
@@ -40,8 +58,16 @@ const Register = () => {
     try {
       const data = new FormData();
       data.append('name', formData.name);
-      data.append('email', formData.email);
       data.append('password', formData.password);
+      data.append('otp', formData.otp);
+      
+      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.identifier);
+      if (isEmail) {
+        data.append('email', formData.identifier);
+      } else {
+        data.append('phone', formData.identifier);
+      }
+
       if (image) data.append('avatar', image);
 
       const response = await authAPI.register(data);
@@ -93,7 +119,7 @@ const Register = () => {
               <p className="text-[10px] text-gray-500 uppercase tracking-widest mt-3 font-mono">Profile Picture</p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="space-y-5">
               <Input
                 label="Full Name"
                 placeholder="Enter your name"
@@ -102,15 +128,43 @@ const Register = () => {
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 required
               />
-              <Input
-                label="Email Address"
-                type="email"
-                placeholder="name@email.com"
-                icon={RiMailLine}
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
-              />
+              
+              <div className="flex gap-3 items-end">
+                <div className="flex-1">
+                  <Input
+                    label="Email or Phone Number"
+                    type="text"
+                    placeholder="name@email.com or +1234567890"
+                    icon={RiMailLine}
+                    value={formData.identifier}
+                    onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
+                    required
+                    disabled={otpSent}
+                  />
+                </div>
+                {!otpSent && (
+                  <button
+                    type="button"
+                    onClick={handleSendOtp}
+                    disabled={sendingOtp || !formData.identifier}
+                    className="h-[56px] px-6 rounded-2xl bg-electric/20 hover:bg-electric/40 text-electric font-semibold border border-electric/30 transition-colors disabled:opacity-50 flex-shrink-0"
+                  >
+                    {sendingOtp ? '...' : 'Get OTP'}
+                  </button>
+                )}
+              </div>
+
+              {otpSent && (
+                <Input
+                  label="Enter OTP"
+                  type="text"
+                  placeholder="6-digit code"
+                  icon={RiLockPasswordLine}
+                  value={formData.otp}
+                  onChange={(e) => setFormData({ ...formData, otp: e.target.value })}
+                  required
+                />
+              )}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
