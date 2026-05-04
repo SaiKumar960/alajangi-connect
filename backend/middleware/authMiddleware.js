@@ -14,16 +14,6 @@ const protect = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (!global.dbConnected) {
-      req.user = {
-        _id: decoded.id,
-        name: decoded.id.includes('mock') ? 'Mock User' : 'Community Member',
-        avatar: `https://i.pravatar.cc/150?u=${decoded.id}`,
-        email: 'mock@example.com'
-      };
-      return next();
-    }
-
     const user = await User.findById(decoded.id).select('-password');
     if (!user) {
       return res.status(401).json({ success: false, message: 'User not found' });

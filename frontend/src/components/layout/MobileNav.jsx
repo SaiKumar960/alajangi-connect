@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
-import { RiHome5Line, RiHome5Fill, RiCompass3Line, RiCompass3Fill, RiAddLine, RiUser3Line, RiUser3Fill } from 'react-icons/ri';
+import { RiHome5Line, RiHome5Fill, RiCompass3Line, RiCompass3Fill, RiAddLine, RiUser3Line, RiUser3Fill, RiNotification3Line, RiNotification3Fill } from 'react-icons/ri';
 
 const MobileNav = ({ onOpenComposer }) => {
   const { user } = useAuth();
@@ -12,6 +12,7 @@ const MobileNav = ({ onOpenComposer }) => {
   const isProfile = location.pathname === `/profile/${user._id}`;
   // For demo, Explore just routes to home but shows different active state visually if we had the route
   const isExplore = location.pathname === '/explore'; 
+  const isNotifications = location.pathname === '/notifications'; 
 
   const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -67,8 +68,13 @@ const MobileNav = ({ onOpenComposer }) => {
           </button>
         </div>
 
-        {/* Spacer for FAB */}
-        <div className="w-4"></div>
+        <NavItem 
+          to="/notifications" 
+          isActive={isNotifications} 
+          iconLine={<RiNotification3Line size={24} />} 
+          iconFill={<RiNotification3Fill size={24} className="text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" />} 
+          label="Notifications"
+        />
 
         <NavItem 
           to={`/profile/${user._id}`} 

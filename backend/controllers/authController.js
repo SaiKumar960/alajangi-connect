@@ -10,17 +10,6 @@ const register = async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!global.dbConnected) {
-      const mockId = 'mock_user_' + Date.now();
-      const token = generateToken(mockId);
-      return res.status(201).json({
-        success: true,
-        message: 'Account created (Mock Mode)',
-        token,
-        user: { _id: mockId, name, email, avatar: 'https://i.pravatar.cc/150?u=' + mockId, bio: 'Mock Profile', createdAt: new Date() },
-      });
-    }
-
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(409).json({ success: false, message: 'An account with this email already exists' });
@@ -63,17 +52,6 @@ const register = async (req, res, next) => {
 const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
-
-    if (!global.dbConnected) {
-      const mockId = 'mock_user_123';
-      const token = generateToken(mockId);
-      return res.status(200).json({
-        success: true,
-        message: 'Logged in (Mock Mode)',
-        token,
-        user: { _id: mockId, name: 'Mock User', email, avatar: 'https://i.pravatar.cc/150?u=mock', bio: 'This is a mock account because the database is offline.', createdAt: new Date() },
-      });
-    }
 
     // Explicitly select password (excluded by default via schema)
     const user = await User.findOne({ email }).select('+password');
