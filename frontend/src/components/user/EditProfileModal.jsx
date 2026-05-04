@@ -83,7 +83,7 @@ const EditProfileModal = ({ user, onClose, onUpdate }) => {
                 </div>
               )}
               <div 
-                className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white cursor-pointer"
+                className="absolute inset-0 bg-black/40 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white cursor-pointer z-20"
                 onClick={() => bannerInputRef.current?.click()}
               >
                 <div className="flex flex-col items-center gap-2">
@@ -100,7 +100,7 @@ const EditProfileModal = ({ user, onClose, onUpdate }) => {
             <div className="relative group w-32 h-32">
               <Avatar src={avatarPreview} name={name} size="xxl" className="border-4 border-surface shadow-2xl" />
               <div 
-                className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white cursor-pointer"
+                className="absolute inset-0 bg-black/60 rounded-full opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white cursor-pointer z-20"
                 onClick={() => avatarInputRef.current?.click()}
               >
                 <RiCameraLine size={28} />

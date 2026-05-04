@@ -117,7 +117,7 @@ const Profile = () => {
                 {isOwnProfile && (
                   <button 
                     onClick={() => setEditMode(true)}
-                    className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white cursor-pointer"
+                    className="absolute inset-0 bg-black/60 rounded-full opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white cursor-pointer z-20"
                   >
                     <RiEditLine size={32} />
                   </button>
