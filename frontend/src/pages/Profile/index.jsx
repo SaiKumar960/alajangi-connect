@@ -116,18 +116,22 @@ const Profile = () => {
                 <Avatar src={user.avatar} name={user.name} size="xxl" className="border-4 border-void shadow-2xl" />
                 {isOwnProfile && (
                   <button 
-                    onClick={() => fileRef.current?.click()}
+                    onClick={() => setEditMode(true)}
                     className="absolute inset-0 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white cursor-pointer"
                   >
                     <RiEditLine size={32} />
-                    <input ref={fileRef} type="file" className="hidden" accept="image/*" onChange={handleAvatarChange} />
                   </button>
                 )}
               </div>
 
               <div className="flex-1">
                 <h1 className="text-3xl font-bold text-white mb-1 glow-text">{user.name}</h1>
-                <p className="text-electric font-mono text-sm tracking-widest mb-4">ID: {user._id.slice(-8).toUpperCase()}</p>
+                <p className="text-electric font-mono text-sm tracking-widest mb-2">ID: {user._id.slice(-8).toUpperCase()}</p>
+                {user.bio && (
+                  <p className="text-gray-300 text-sm max-w-lg mb-4 line-clamp-2">
+                    {user.bio}
+                  </p>
+                )}
                 
                 <div className="flex flex-wrap gap-4 text-sm text-gray-400 font-medium">
                   <div className="flex items-center gap-1.5">
@@ -143,7 +147,7 @@ const Profile = () => {
 
               <div className="flex gap-3">
                 {isOwnProfile ? (
-                  <GlowButton variant="secondary" onClick={() => setEditMode(!editMode)}>
+                  <GlowButton variant="secondary" onClick={() => setEditMode(true)}>
                     <RiEditLine />
                     Edit Profile
                   </GlowButton>
@@ -206,6 +210,17 @@ const Profile = () => {
       />
       
       <MobileNav onOpenComposer={() => setIsComposerOpen(true)} />
+
+      {editMode && (
+        <EditProfileModal 
+          user={user} 
+          onClose={() => setEditMode(false)} 
+          onUpdate={(updatedUser) => {
+            setUser(updatedUser);
+            if (isOwnProfile) updateUser(updatedUser);
+          }}
+        />
+      )}
     </div>
   );
 };
